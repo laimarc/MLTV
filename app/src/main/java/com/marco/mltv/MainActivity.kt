@@ -43,7 +43,7 @@ class MainActivity : AppCompatActivity() {
 
     private var allChannels: List<Channel> = emptyList()
     private var groups: List<String> = listOf("Tout")
-    private var curGroup: String = "Tout"
+    private var curGroup: String = "★ Favoris"
     private var curEpgId: String = ""
     private var curName: String = ""
     private var curStreamId: Int = -1
@@ -150,7 +150,7 @@ class MainActivity : AppCompatActivity() {
 
         player = ExoPlayer.Builder(this).build()
         playerView.player = player
-        hideSeekBar(playerView)
+        playerView.useController = false
 
         // Bouton plein écran dans les contrôles du lecteur live
         playerView.setFullscreenButtonClickListener {
@@ -369,11 +369,6 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
-    private fun hideSeekBar(pv: PlayerView) {
-        pv.findViewById<View?>(androidx.media3.ui.R.id.exo_progress)?.visibility = View.GONE
-        pv.findViewById<View?>(androidx.media3.ui.R.id.exo_position)?.visibility = View.GONE
-        pv.findViewById<View?>(androidx.media3.ui.R.id.exo_duration)?.visibility = View.GONE
-    }
 
     override fun onResume() {
         super.onResume()

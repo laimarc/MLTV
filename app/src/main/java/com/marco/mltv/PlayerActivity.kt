@@ -36,9 +36,7 @@ class PlayerActivity : AppCompatActivity() {
         playerView.player = p
 
         if (live) {
-            playerView.findViewById<View?>(androidx.media3.ui.R.id.exo_progress)?.visibility = View.GONE
-            playerView.findViewById<View?>(androidx.media3.ui.R.id.exo_position)?.visibility = View.GONE
-            playerView.findViewById<View?>(androidx.media3.ui.R.id.exo_duration)?.visibility = View.GONE
+            playerView.useController = false
             playCurrentLive()
         } else {
             val url = intent.getStringExtra("url") ?: ""
