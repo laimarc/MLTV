@@ -1,11 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="horizontal"
     android:background="@color/bg">
 
-    <!-- Left panel -->
+    <!-- Bandeau catégories (ouvre à gauche) -->
+    <LinearLayout
+        android:id="@+id/drawer"
+        android:layout_width="280dp"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="@color/panel2"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:text="Catégories"
+            android:textColor="@color/accent"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_catdrawer"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:paddingHorizontal="10dp"
+            android:clipToPadding="false"
+            android:scrollbars="vertical" />
+    </LinearLayout>
+
+    <!-- Panneau gauche -->
     <LinearLayout
         android:layout_width="360dp"
         android:layout_height="match_parent"
@@ -17,7 +46,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:paddingHorizontal="16dp"
+            android:paddingHorizontal="12dp"
             android:paddingVertical="12dp">
 
             <TextView
@@ -30,6 +59,18 @@
                 android:textStyle="bold" />
 
             <Button
+                android:id="@+id/btn_cats"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="6dp"
+                android:background="@drawable/btn_secondary"
+                android:text="☰"
+                android:textColor="@color/txt"
+                android:textSize="15sp"
+                android:minWidth="0dp"
+                android:paddingHorizontal="12dp" />
+
+            <Button
                 android:id="@+id/btn_manage"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -40,7 +81,7 @@
                 android:textAllCaps="false"
                 android:textSize="13sp"
                 android:minWidth="0dp"
-                android:paddingHorizontal="14dp" />
+                android:paddingHorizontal="12dp" />
 
             <Button
                 android:id="@+id/btn_sources"
@@ -52,7 +93,7 @@
                 android:textAllCaps="false"
                 android:textSize="13sp"
                 android:minWidth="0dp"
-                android:paddingHorizontal="14dp" />
+                android:paddingHorizontal="12dp" />
         </LinearLayout>
 
         <LinearLayout
@@ -67,7 +108,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:layout_marginEnd="6dp"
+                android:layout_marginEnd="4dp"
                 android:background="@drawable/btn_secondary"
                 android:text="Films"
                 android:textColor="@color/txt"
@@ -91,7 +132,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:layout_marginStart="6dp"
+                android:layout_marginStart="4dp"
                 android:background="@drawable/btn_secondary"
                 android:text="Guide"
                 android:textColor="@color/txt"
@@ -115,15 +156,17 @@
             android:imeOptions="actionSearch"
             android:maxLines="1" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_groups"
+        <TextView
+            android:id="@+id/tv_curcat"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingHorizontal="12dp"
-            android:paddingBottom="8dp"
-            android:clipToPadding="false"
-            android:orientation="horizontal"
-            android:scrollbars="none" />
+            android:paddingHorizontal="14dp"
+            android:paddingBottom="6dp"
+            android:text="Tout"
+            android:textColor="@color/muted"
+            android:textSize="13sp"
+            android:maxLines="1"
+            android:ellipsize="end" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_channels"
@@ -138,7 +181,7 @@
             android:id="@+id/tv_status"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="16dp"
+            android:padding="14dp"
             android:text="Chargement…"
             android:textColor="@color/muted"
             android:textSize="14sp" />
@@ -152,6 +195,5 @@
         android:layout_weight="1"
         android:background="#FF000000"
         app:use_controller="true"
-        app:resize_mode="fit"
-        xmlns:app="http://schemas.android.com/apk/res-auto" />
+        app:resize_mode="fit" />
 </LinearLayout>

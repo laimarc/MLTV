@@ -4,6 +4,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.view.KeyEvent
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
@@ -20,6 +22,9 @@ class MovieActivity : AppCompatActivity() {
     private lateinit var status: TextView
     private lateinit var adapter: PosterAdapter<VodItem>
     private lateinit var catAdapter: GroupAdapter
+    private lateinit var drawer: View
+    private lateinit var rvCatDrawer: RecyclerView
+    private lateinit var rvGrid: RecyclerView
 
     private var all: List<VodItem> = emptyList()
     private var cats: List<String> = listOf("Tout")
@@ -32,10 +37,12 @@ class MovieActivity : AppCompatActivity() {
 
         findViewById<TextView>(R.id.tv_header).text = "Films"
         status = findViewById(R.id.tv_status)
+        drawer = findViewById(R.id.drawer)
         findViewById<Button>(R.id.btn_back).setOnClickListener { finish() }
+        findViewById<Button>(R.id.btn_cats).setOnClickListener { openDrawer() }
 
-        val rv = findViewById<RecyclerView>(R.id.rv_grid)
-        rv.layoutManager = GridLayoutManager(this, spanCount())
+        rvGrid = findViewById(R.id.rv_grid)
+        rvGrid.layoutManager = GridLayoutManager(this, spanCount())
 
         adapter = PosterAdapter(
             emptyList(),
@@ -52,15 +59,16 @@ class MovieActivity : AppCompatActivity() {
                 )
             }
         )
-        rv.adapter = adapter
+        rvGrid.adapter = adapter
 
-        val rvCats = findViewById<RecyclerView>(R.id.rv_cats)
-        rvCats.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        rvCatDrawer = findViewById(R.id.rv_catdrawer)
+        rvCatDrawer.layoutManager = LinearLayoutManager(this)
         catAdapter = GroupAdapter(cats, curCat) { c ->
             curCat = c
+            closeDrawer()
             render()
         }
-        rvCats.adapter = catAdapter
+        rvCatDrawer.adapter = catAdapter
 
         findViewById<EditText>(R.id.et_search).addTextChangedListener { e ->
             search = e?.toString() ?: ""
@@ -74,7 +82,7 @@ class MovieActivity : AppCompatActivity() {
                     all = list
                     buildCats()
                     render()
-                    rv.requestFocus()
+                    rvGrid.requestFocus()
                 }
             } catch (e: Exception) {
                 mainHandler.post { status.text = "Erreur : ${e.message}" }
@@ -103,5 +111,33 @@ class MovieActivity : AppCompatActivity() {
         val dm = resources.displayMetrics
         val widthDp = dm.widthPixels / dm.density
         return (widthDp / 170).toInt().coerceIn(3, 8)
+    }
+
+    private fun openDrawer() {
+        drawer.visibility = View.VISIBLE
+        rvCatDrawer.requestFocus()
+    }
+
+    private fun closeDrawer() {
+        drawer.visibility = View.GONE
+        rvGrid.requestFocus()
+    }
+
+    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        if (event.action == KeyEvent.ACTION_DOWN) {
+            val kc = event.keyCode
+            if (drawer.visibility == View.VISIBLE) {
+                if (kc == KeyEvent.KEYCODE_DPAD_RIGHT || kc == KeyEvent.KEYCODE_BACK) {
+                    closeDrawer(); return true
+                }
+            } else if (kc == KeyEvent.KEYCODE_DPAD_LEFT) {
+                val cur = currentFocus
+                if (cur !is EditText) {
+                    val next = cur?.focusSearch(View.FOCUS_LEFT)
+                    if (next == null || next === cur) { openDrawer(); return true }
+                }
+            }
+        }
+        return super.dispatchKeyEvent(event)
     }
 }
