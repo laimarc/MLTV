@@ -1,0 +1,50 @@
+package com.marco.mltv
+
+import android.content.Context
+
+/** Sauvegarde locale de la source et des favoris (SharedPreferences). */
+object Store {
+    private const val PREFS = "mltv"
+
+    private fun prefs(c: Context) =
+        c.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+
+    fun hasConfig(c: Context): Boolean =
+        prefs(c).getString("type", null) != null
+
+    fun type(c: Context): String = prefs(c).getString("type", "") ?: ""
+
+    fun saveM3u(c: Context, url: String) {
+        prefs(c).edit()
+            .putString("type", "m3u")
+            .putString("m3u", url.trim())
+            .apply()
+    }
+
+    fun saveXtream(c: Context, host: String, user: String, pass: String) {
+        prefs(c).edit()
+            .putString("type", "xtream")
+            .putString("host", host.trim().trimEnd('/'))
+            .putString("user", user.trim())
+            .putString("pass", pass.trim())
+            .apply()
+    }
+
+    fun m3uUrl(c: Context): String = prefs(c).getString("m3u", "") ?: ""
+    fun host(c: Context): String = prefs(c).getString("host", "") ?: ""
+    fun user(c: Context): String = prefs(c).getString("user", "") ?: ""
+    fun pass(c: Context): String = prefs(c).getString("pass", "") ?: ""
+
+    // Favoris : ensemble d'URL
+    fun favorites(c: Context): MutableSet<String> =
+        HashSet(prefs(c).getStringSet("favs", emptySet()) ?: emptySet())
+
+    fun isFavorite(c: Context, url: String): Boolean =
+        favorites(c).contains(url)
+
+    fun toggleFavorite(c: Context, url: String) {
+        val set = favorites(c)
+        if (!set.remove(url)) set.add(url)
+        prefs(c).edit().putStringSet("favs", set).apply()
+    }
+}
