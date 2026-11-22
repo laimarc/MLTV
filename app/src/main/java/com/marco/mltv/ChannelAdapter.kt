@@ -21,6 +21,7 @@ class ChannelAdapter(
         val logo: ImageView = v.findViewById(R.id.iv_logo)
         val name: TextView = v.findViewById(R.id.tv_name)
         val groupName: TextView = v.findViewById(R.id.tv_group_name)
+        val catchup: TextView = v.findViewById(R.id.tv_catchup)
         val star: TextView = v.findViewById(R.id.tv_star)
     }
 
@@ -45,9 +46,10 @@ class ChannelAdapter(
             holder.logo.visibility = View.GONE
             holder.logo.setImageDrawable(null)
         }
-        holder.name.text = c.name
+        holder.name.text = if (c.num > 0) "${c.num}  ${c.name}" else c.name
         val now = if (c.epgId.isNotEmpty()) nowTitle(c.epgId) else null
         holder.groupName.text = now ?: c.group
+        holder.catchup.visibility = if (c.archive) View.VISIBLE else View.GONE
         holder.star.visibility = if (favUrls().contains(c.url)) View.VISIBLE else View.GONE
         holder.itemView.setOnClickListener { onClick(c) }
         holder.itemView.setOnLongClickListener {

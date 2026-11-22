@@ -365,6 +365,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun openFullscreen() {
         if (curUrl.isEmpty()) return
+        val list = currentFiltered()
+        val idx = list.indexOfFirst { it.url == curUrl }
+        LiveSession.channels = list
+        LiveSession.index = if (idx >= 0) idx else 0
         startActivity(
             Intent(this, PlayerActivity::class.java)
                 .putExtra("url", curUrl)

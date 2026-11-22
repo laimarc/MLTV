@@ -7,5 +7,6 @@ data class Channel(
     val url: String,
     val epgId: String = "",
     val streamId: Int = -1,
-    val archive: Boolean = false
+    val archive: Boolean = false,
+    val num: Int = 0
 )

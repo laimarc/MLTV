@@ -30,7 +30,8 @@ object XtreamClient {
             val group = catMap[o.optString("category_id")] ?: "Autres"
             val url = "$base/live/$u/$p/$sid.m3u8"
             val archive = o.optInt("tv_archive", 0) == 1
-            out.add(Channel(name, logo, group, url, o.optString("epg_channel_id", ""), sid, archive))
+            val num = o.optInt("num", 0)
+            out.add(Channel(name, logo, group, url, o.optString("epg_channel_id", ""), sid, archive, num))
         }
         if (out.isEmpty()) throw RuntimeException("Aucune chaîne reçue (identifiants ?)")
         return out
