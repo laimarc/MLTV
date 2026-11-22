@@ -8,13 +8,20 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
-/** Grille des films (VOD Xtream). */
+/** Grille des films (VOD Xtream) avec catégories. */
 class MovieActivity : AppCompatActivity() {
 
     private val mainHandler = Handler(Looper.getMainLooper())
     private lateinit var status: TextView
+    private lateinit var adapter: PosterAdapter<VodItem>
+    private lateinit var catAdapter: GroupAdapter
+
+    private var all: List<VodItem> = emptyList()
+    private var cats: List<String> = listOf("Tout")
+    private var curCat: String = "Tout"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,7 +34,7 @@ class MovieActivity : AppCompatActivity() {
         val rv = findViewById<RecyclerView>(R.id.rv_grid)
         rv.layoutManager = GridLayoutManager(this, spanCount())
 
-        val adapter = PosterAdapter<VodItem>(
+        adapter = PosterAdapter(
             emptyList(),
             titleOf = { it.name },
             posterOf = { it.poster },
@@ -41,18 +48,43 @@ class MovieActivity : AppCompatActivity() {
         )
         rv.adapter = adapter
 
+        val rvCats = findViewById<RecyclerView>(R.id.rv_cats)
+        rvCats.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        catAdapter = GroupAdapter(cats, curCat) { c ->
+            curCat = c
+            render()
+        }
+        rvCats.adapter = catAdapter
+
         Thread {
             try {
                 val list = XtreamClient.fetchVod(Store.host(this), Store.user(this), Store.pass(this))
                 mainHandler.post {
-                    adapter.update(list)
-                    status.text = if (list.isEmpty()) "Aucun film trouvé" else "${list.size} films"
+                    all = list
+                    buildCats()
+                    render()
                     rv.requestFocus()
                 }
             } catch (e: Exception) {
                 mainHandler.post { status.text = "Erreur : ${e.message}" }
             }
         }.start()
+    }
+
+    private fun buildCats() {
+        val distinct = LinkedHashSet<String>()
+        for (v in all) distinct.add(v.group)
+        val list = ArrayList<String>()
+        list.add("Tout")
+        list.addAll(distinct)
+        cats = list
+    }
+
+    private fun render() {
+        catAdapter.update(cats, curCat)
+        val filtered = if (curCat == "Tout") all else all.filter { it.group == curCat }
+        adapter.update(filtered)
+        status.text = if (filtered.isEmpty()) "Aucun film" else "${filtered.size} films"
     }
 
     private fun spanCount(): Int {

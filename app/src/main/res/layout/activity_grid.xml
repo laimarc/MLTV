@@ -36,11 +36,21 @@
             android:paddingHorizontal="16dp" />
     </LinearLayout>
 
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_cats"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="16dp"
+        android:paddingTop="10dp"
+        android:clipToPadding="false"
+        android:scrollbars="none" />
+
     <TextView
         android:id="@+id/tv_status"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="10dp"
         android:text="Chargement…"
         android:textColor="@color/muted"
         android:textSize="14sp" />
