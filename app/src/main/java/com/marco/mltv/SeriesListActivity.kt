@@ -95,12 +95,15 @@ class SeriesListActivity : AppCompatActivity() {
         val hidden = Store.hiddenSeriesCats(this)
         val list = ArrayList<String>()
         list.add("Tout")
+        list.add(WATCH)
         list.addAll(ordered.filter { !hidden.contains(it) })
         cats = list
     }
 
-    /** Catégorie par défaut : toujours celle juste après « Tout ». */
-    private fun defaultCat(): String? = cats.getOrNull(1)
+    /** Catégorie par défaut : la 1re vraie catégorie (après « Tout » et « À regarder »). */
+    private fun defaultCat(): String? = cats.firstOrNull { it != "Tout" && it != WATCH }
+
+    companion object { const val WATCH = "★ À regarder" }
 
     private fun orderedRealSeriesCats(): MutableList<String> {
         val present = LinkedHashSet<String>()
@@ -113,7 +116,7 @@ class SeriesListActivity : AppCompatActivity() {
     }
 
     private fun showCatMenu(c: String) {
-        if (c == "Tout") return
+        if (c == "Tout" || c == WATCH) return
         val hidden = Store.isSeriesCatHidden(this, c)
         val items = arrayOf("Déplacer (haut/bas)", if (hidden) "Afficher" else "Masquer")
         AlertDialog.Builder(this)
@@ -133,7 +136,7 @@ class SeriesListActivity : AppCompatActivity() {
     }
 
     private fun startMove(c: String) {
-        if (c == "Tout") return
+        if (c == "Tout" || c == WATCH) return
         movingCat = c
         catAdapter.setMoving(c)
     }
@@ -147,13 +150,13 @@ class SeriesListActivity : AppCompatActivity() {
         val c = movingCat ?: return
         val from = cats.indexOf(c)
         val to = if (up) from - 1 else from + 1
-        if (from < 0 || to < 1 || to > cats.lastIndex) return
+        if (from < 0 || to < 2 || to > cats.lastIndex) return
         val list = cats.toMutableList()
         val item = list.removeAt(from)
         list.add(to, item)
         cats = list
         catAdapter.moveItem(from, to)
-        Store.setSeriesCatOrder(this, cats.filter { it != "Tout" })
+        Store.setSeriesCatOrder(this, cats.filter { it != "Tout" && it != WATCH })
     }
 
     private fun render() {
@@ -163,11 +166,18 @@ class SeriesListActivity : AppCompatActivity() {
     }
 
     private fun renderGrid() {
-        var list = if (curCat == "Tout") all.filter { !Store.isSeriesCatHidden(this, it.group) }
-        else all.filter { it.group == curCat }
+        var list = when (curCat) {
+            "Tout" -> all.filter { !Store.isSeriesCatHidden(this, it.group) }
+            WATCH -> all.filter { Store.isSeriesWatch(this, it.seriesId) }
+            else -> all.filter { it.group == curCat }
+        }
         if (search.isNotBlank()) list = list.filter { it.name.contains(search, ignoreCase = true) }
         adapter.update(list)
-        status.text = if (list.isEmpty()) "Aucune série" else "${list.size} séries"
+        status.text = when {
+            list.isNotEmpty() -> "${list.size} séries"
+            curCat == WATCH -> "Ta liste est vide — ouvre une série puis « À regarder »"
+            else -> "Aucune série"
+        }
     }
 
     private fun spanCount(): Int {

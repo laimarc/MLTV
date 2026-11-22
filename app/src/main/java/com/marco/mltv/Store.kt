@@ -116,6 +116,29 @@ object Store {
         prefs(c).edit().putStringSet("hidSerCat", set).apply()
     }
 
+    // ---- À regarder plus tard ----
+    fun movieWatch(c: Context): MutableSet<String> =
+        HashSet(prefs(c).getStringSet("watchVod", emptySet()) ?: emptySet())
+
+    fun isMovieWatch(c: Context, id: Int): Boolean = movieWatch(c).contains(id.toString())
+
+    fun toggleMovieWatch(c: Context, id: Int) {
+        val set = movieWatch(c)
+        if (!set.remove(id.toString())) set.add(id.toString())
+        prefs(c).edit().putStringSet("watchVod", set).apply()
+    }
+
+    fun seriesWatch(c: Context): MutableSet<String> =
+        HashSet(prefs(c).getStringSet("watchSer", emptySet()) ?: emptySet())
+
+    fun isSeriesWatch(c: Context, id: Int): Boolean = seriesWatch(c).contains(id.toString())
+
+    fun toggleSeriesWatch(c: Context, id: Int) {
+        val set = seriesWatch(c)
+        if (!set.remove(id.toString())) set.add(id.toString())
+        prefs(c).edit().putStringSet("watchSer", set).apply()
+    }
+
     // ---- Reprise de lecture (films / épisodes) : position en ms par URL ----
     fun resumePos(c: Context, url: String): Long =
         prefs(c).getLong("pos:" + url, 0L)

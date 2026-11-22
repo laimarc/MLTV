@@ -4,7 +4,10 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.view.KeyEvent
+import android.view.View
 import android.widget.Button
+import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -30,6 +33,16 @@ class SeriesDetailActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.tv_header).text = name
         status = findViewById(R.id.tv_status)
         findViewById<Button>(R.id.btn_back).setOnClickListener { finish() }
+
+        val btnWatch = findViewById<Button>(R.id.btn_watch)
+        fun refreshWatch() {
+            btnWatch.text = if (seriesId >= 0 && Store.isSeriesWatch(this, seriesId))
+                "✓  Dans ma liste" else "＋  À regarder"
+        }
+        btnWatch.setOnClickListener {
+            if (seriesId >= 0) { Store.toggleSeriesWatch(this, seriesId); refreshWatch() }
+        }
+        refreshWatch()
 
         val rvSeasons = findViewById<RecyclerView>(R.id.rv_seasons)
         val rvEpisodes = findViewById<RecyclerView>(R.id.rv_episodes)
@@ -85,5 +98,16 @@ class SeriesDetailActivity : AppCompatActivity() {
         val eps = season?.episodes ?: emptyList()
         episodeAdapter.update(eps)
         status.text = "${eps.size} épisode" + if (eps.size > 1) "s" else ""
+    }
+
+    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        if (event.action == KeyEvent.ACTION_DOWN && event.keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
+            val cur = currentFocus
+            if (cur !is EditText) {
+                val next = cur?.focusSearch(View.FOCUS_LEFT)
+                if (next == null || next === cur) { finish(); return true }
+            }
+        }
+        return super.dispatchKeyEvent(event)
     }
 }
