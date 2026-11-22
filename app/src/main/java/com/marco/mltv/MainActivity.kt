@@ -49,6 +49,22 @@ class MainActivity : AppCompatActivity() {
             finish()
         }
 
+        findViewById<Button>(R.id.btn_films).setOnClickListener {
+            if (Store.type(this) == "xtream") {
+                startActivity(Intent(this, MovieActivity::class.java))
+            } else {
+                Toast.makeText(this, "Disponible uniquement en Xtream", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        findViewById<Button>(R.id.btn_series).setOnClickListener {
+            if (Store.type(this) == "xtream") {
+                startActivity(Intent(this, SeriesListActivity::class.java))
+            } else {
+                Toast.makeText(this, "Disponible uniquement en Xtream", Toast.LENGTH_SHORT).show()
+            }
+        }
+
         rvGroups.layoutManager =
             LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         rvChannels.layoutManager = LinearLayoutManager(this)

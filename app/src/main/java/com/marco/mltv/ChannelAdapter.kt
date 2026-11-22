@@ -3,8 +3,10 @@ package com.marco.mltv
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import coil.load
 
 class ChannelAdapter(
     private var items: List<Channel>,
@@ -15,6 +17,7 @@ class ChannelAdapter(
 
     class VH(v: View) : RecyclerView.ViewHolder(v) {
         val badge: TextView = v.findViewById(R.id.tv_badge)
+        val logo: ImageView = v.findViewById(R.id.iv_logo)
         val name: TextView = v.findViewById(R.id.tv_name)
         val groupName: TextView = v.findViewById(R.id.tv_group_name)
         val star: TextView = v.findViewById(R.id.tv_star)
@@ -34,6 +37,13 @@ class ChannelAdapter(
     override fun onBindViewHolder(holder: VH, position: Int) {
         val c = items[position]
         holder.badge.text = badgeOf(c.name)
+        if (c.logo.isNotEmpty()) {
+            holder.logo.visibility = View.VISIBLE
+            holder.logo.load(c.logo)
+        } else {
+            holder.logo.visibility = View.GONE
+            holder.logo.setImageDrawable(null)
+        }
         holder.name.text = c.name
         holder.groupName.text = c.group
         holder.star.visibility = if (favUrls().contains(c.url)) View.VISIBLE else View.GONE
