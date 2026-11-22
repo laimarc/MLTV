@@ -158,6 +158,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         loadChannels()
+        Updater.checkAsync(this)
     }
 
     private fun loadChannels() {

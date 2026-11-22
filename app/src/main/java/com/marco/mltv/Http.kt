@@ -18,4 +18,15 @@ object Http {
             return resp.body?.string() ?: throw RuntimeException("Réponse vide")
         }
     }
+
+    fun download(url: String, dest: java.io.File) {
+        val req = Request.Builder().url(url).build()
+        client.newCall(req).execute().use { resp ->
+            if (!resp.isSuccessful) throw RuntimeException("HTTP ${resp.code}")
+            val body = resp.body ?: throw RuntimeException("Réponse vide")
+            body.byteStream().use { input ->
+                dest.outputStream().use { out -> input.copyTo(out) }
+            }
+        }
+    }
 }

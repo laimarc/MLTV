@@ -31,6 +31,9 @@ jobs:
         run: gradle wrapper --gradle-version 8.7
 
       - name: Compiler l'APK (debug)
+        env:
+          VERSION_CODE: ${{ github.run_number }}
+          VERSION_NAME: "1.${{ github.run_number }}"
         run: ./gradlew assembleDebug --no-daemon --stacktrace
 
       - name: Publier l'APK (artifact)
@@ -50,10 +53,11 @@ jobs:
             gh release create latest --title "MLTV — dernière version" --notes "APK du dernier build (lien stable)."
           gh release upload latest MLTV.apk --clobber
 
-      - name: Préparer le site (fichier direct)
+      - name: Préparer le site (fichier direct + version)
         run: |
           mkdir -p site
           cp app/build/outputs/apk/debug/app-debug.apk site/MLTV.apk
+          printf '{"versionCode": %s, "versionName": "1.%s", "url": "https://laimarc.github.io/MLTV/MLTV.apk"}\n' "${{ github.run_number }}" "${{ github.run_number }}" > site/version.json
           printf '%s\n' '<!doctype html><meta charset="utf-8"><title>MLTV</title><body style="font-family:sans-serif;background:#0e1116;color:#e6edf3;text-align:center;padding:40px"><h1>ML<span style="color:#ff7a18">TV</span></h1><p><a style="color:#ff7a18;font-size:20px" href="MLTV.apk">Télécharger MLTV.apk</a></p></body>' > site/index.html
 
       - name: Déployer sur GitHub Pages
