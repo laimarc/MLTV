@@ -102,12 +102,8 @@ class MovieActivity : AppCompatActivity() {
         cats = list
     }
 
-    /** Catégorie « Nouveauté (FR) » si elle existe (priorité à celle contenant FR). */
-    private fun defaultCat(): String? {
-        val news = cats.filter { it != "Tout" && it.contains("nouveaut", ignoreCase = true) }
-        if (news.isEmpty()) return null
-        return news.firstOrNull { it.contains("fr", ignoreCase = true) } ?: news.first()
-    }
+    /** Catégorie par défaut : toujours celle juste après « Tout ». */
+    private fun defaultCat(): String? = cats.getOrNull(1)
 
     private fun orderedRealVodCats(): MutableList<String> {
         val present = LinkedHashSet<String>()
