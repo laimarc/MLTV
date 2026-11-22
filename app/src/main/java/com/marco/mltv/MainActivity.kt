@@ -20,6 +20,9 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @UnstableApi
 class MainActivity : AppCompatActivity() {
@@ -31,12 +34,16 @@ class MainActivity : AppCompatActivity() {
     private lateinit var status: TextView
     private lateinit var drawer: View
     private lateinit var tvCurCat: TextView
-    private lateinit var infoOverlay: View
-    private lateinit var infoChannel: TextView
-    private lateinit var infoNow: TextView
-    private lateinit var infoNext: TextView
-    private lateinit var infoPb: ProgressBar
-    private val hideInfo = Runnable { infoOverlay.visibility = View.GONE }
+
+    private lateinit var rvProgs: RecyclerView
+    private lateinit var tvChHeader: TextView
+    private lateinit var tvDetailTitle: TextView
+    private lateinit var tvDetailTime: TextView
+    private lateinit var tvDetailDesc: TextView
+    private lateinit var pbDetail: ProgressBar
+    private lateinit var progAdapter: EpgProgAdapter
+    private val hm = SimpleDateFormat("HH:mm", Locale.FRANCE)
+    private var curChannel: Channel? = null
 
     private lateinit var groupAdapter: GroupAdapter
     private lateinit var channelAdapter: ChannelAdapter
@@ -64,6 +71,12 @@ class MainActivity : AppCompatActivity() {
         status = findViewById(R.id.tv_status)
         drawer = findViewById(R.id.drawer)
         tvCurCat = findViewById(R.id.tv_curcat)
+        rvProgs = findViewById(R.id.rv_progs)
+        tvChHeader = findViewById(R.id.tv_ch_header)
+        tvDetailTitle = findViewById(R.id.tv_detail_title)
+        tvDetailTime = findViewById(R.id.tv_detail_time)
+        tvDetailDesc = findViewById(R.id.tv_detail_desc)
+        pbDetail = findViewById(R.id.pb_detail)
 
         findViewById<Button>(R.id.btn_cats).setOnClickListener { openDrawer() }
 
@@ -90,10 +103,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        findViewById<Button>(R.id.btn_guide).setOnClickListener {
-            startActivity(Intent(this, GuideActivity::class.java))
-        }
-
         findViewById<Button>(R.id.btn_manage).setOnClickListener {
             startActivity(Intent(this, ManageActivity::class.java))
         }
@@ -105,6 +114,14 @@ class MainActivity : AppCompatActivity() {
 
         rvCatDrawer.layoutManager = LinearLayoutManager(this)
         rvChannels.layoutManager = LinearLayoutManager(this)
+        rvProgs.layoutManager = LinearLayoutManager(this)
+
+        progAdapter = EpgProgAdapter(
+            emptyList(),
+            onReplay = { prog -> replay(prog) },
+            onFocus = { prog -> showDetails(prog) }
+        )
+        rvProgs.adapter = progAdapter
 
         groupAdapter = GroupAdapter(
             groups, curGroup,
@@ -142,20 +159,9 @@ class MainActivity : AppCompatActivity() {
         )
         rvChannels.adapter = channelAdapter
 
-        infoOverlay = findViewById(R.id.info_overlay)
-        infoChannel = findViewById(R.id.tv_info_channel)
-        infoNow = findViewById(R.id.tv_info_now)
-        infoNext = findViewById(R.id.tv_info_next)
-        infoPb = findViewById(R.id.pb_info)
-
         player = ExoPlayer.Builder(this).build()
         playerView.player = player
         playerView.useController = false
-
-        // Bouton plein écran dans les contrôles du lecteur live
-        playerView.setFullscreenButtonClickListener {
-            if (curUrl.isNotEmpty()) openFullscreen()
-        }
 
         loadChannels()
         Updater.checkAsync(this)
@@ -170,6 +176,8 @@ class MainActivity : AppCompatActivity() {
                     allChannels = list
                     buildGroups()
                     render()
+                    val first = currentFiltered().firstOrNull()
+                    if (first != null) play(first)
                     rvChannels.requestFocus()
                     loadEpg()
                 }
@@ -183,13 +191,19 @@ class MainActivity : AppCompatActivity() {
 
     private fun loadEpg() {
         if (Store.type(this) != "xtream" || Epg.loaded) {
-            if (Epg.loaded) channelAdapter.update(currentFiltered())
+            if (Epg.loaded) {
+                channelAdapter.update(currentFiltered())
+                curChannel?.let { loadChannelEpg(it) }
+            }
             return
         }
         Thread {
             try {
                 Epg.ensureLoaded(Store.host(this), Store.user(this), Store.pass(this))
-                mainHandler.post { channelAdapter.update(currentFiltered()) }
+                mainHandler.post {
+                    channelAdapter.update(currentFiltered())
+                    curChannel?.let { loadChannelEpg(it) }
+                }
             } catch (e: Exception) {
                 // EPG indisponible : on garde les groupes, pas de blocage
             }
@@ -336,6 +350,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun play(c: Channel) {
         val p = player ?: return
+        curChannel = c
         curEpgId = c.epgId
         curName = c.name
         curStreamId = c.streamId
@@ -344,14 +359,49 @@ class MainActivity : AppCompatActivity() {
         p.setMediaItem(MediaItem.fromUri(c.url))
         p.prepare()
         p.playWhenReady = true
-        showInfo(c.name, c.epgId)
+        loadChannelEpg(c)
     }
 
-    private fun showInfo(name: String, epgId: String) {
-        InfoOverlay.populate(name, epgId, infoChannel, infoNow, infoNext, infoPb)
-        infoOverlay.visibility = View.VISIBLE
-        mainHandler.removeCallbacks(hideInfo)
-        mainHandler.postDelayed(hideInfo, 6000)
+    private fun loadChannelEpg(c: Channel) {
+        tvChHeader.text = (if (c.num > 0) "${c.num}  " else "") + c.name
+        val progs = Epg.list(c.epgId)
+        progAdapter.update(progs, c.archive)
+        val now = System.currentTimeMillis()
+        val idx = progs.indexOfFirst { it.start <= now && now < it.stop }
+        when {
+            idx >= 0 -> {
+                (rvProgs.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(idx, 0)
+                showDetails(progs[idx])
+            }
+            progs.isNotEmpty() -> showDetails(progs[0])
+            else -> {
+                tvDetailTitle.text = c.name
+                tvDetailTime.text = ""
+                tvDetailDesc.text = "Pas de guide pour cette chaîne."
+                pbDetail.progress = 0
+            }
+        }
+    }
+
+    private fun showDetails(p: Epg.Prog) {
+        tvDetailTitle.text = p.title
+        val durMin = ((p.stop - p.start) / 60000L).toInt()
+        tvDetailTime.text = "${hm.format(Date(p.start))} – ${hm.format(Date(p.stop))}  ·  $durMin min"
+        val total = (p.stop - p.start).coerceAtLeast(1L)
+        pbDetail.progress = (((System.currentTimeMillis() - p.start) * 100) / total).toInt().coerceIn(0, 100)
+        tvDetailDesc.text = p.desc
+    }
+
+    private fun replay(prog: Epg.Prog) {
+        val c = curChannel ?: return
+        if (c.streamId < 0) return
+        val dur = ((prog.stop - prog.start) / 60000L).toInt().coerceAtLeast(1)
+        val url = XtreamClient.catchupUrl(Store.host(this), Store.user(this), Store.pass(this), c.streamId, prog.start, dur)
+        startActivity(
+            Intent(this, PlayerActivity::class.java)
+                .putExtra("url", url)
+                .putExtra("title", "⟲ " + prog.title)
+        )
     }
 
     private fun openFullscreen() {
