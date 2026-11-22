@@ -79,6 +79,10 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        findViewById<Button>(R.id.btn_manage).setOnClickListener {
+            startActivity(Intent(this, ManageActivity::class.java))
+        }
+
         rvGroups.layoutManager =
             LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         rvChannels.layoutManager = LinearLayoutManager(this)
@@ -148,25 +152,44 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun buildGroups() {
-        val distinct = LinkedHashSet<String>()
-        for (c in allChannels) distinct.add(c.group)
+        val present = LinkedHashSet<String>()
+        for (c in allChannels) present.add(c.group)
+        val hidden = Store.hiddenGroups(this)
+        val saved = Store.groupOrder(this)
+        val ordered = ArrayList<String>()
+        for (g in saved) if (present.contains(g) && !ordered.contains(g)) ordered.add(g)
+        for (g in present) if (!ordered.contains(g)) ordered.add(g)
         val list = ArrayList<String>()
         list.add("Tout")
         list.add("★ Favoris")
-        list.addAll(distinct)
+        list.addAll(ordered.filter { !hidden.contains(it) })
         groups = list
     }
 
     private fun currentFiltered(): List<Channel> {
         val favs = Store.favorites(this)
+        val hiddenCh = Store.hiddenChannels(this)
+        val hiddenGrp = Store.hiddenGroups(this)
+        val base = applyOrder(
+            allChannels.filter { !hiddenCh.contains(it.url) && !hiddenGrp.contains(it.group) }
+        )
         return when (curGroup) {
-            "Tout" -> allChannels
-            "★ Favoris" -> allChannels.filter { favs.contains(it.url) }
-            else -> allChannels.filter { it.group == curGroup }
+            "Tout" -> base
+            "★ Favoris" -> base.filter { favs.contains(it.url) }
+            else -> base.filter { it.group == curGroup }
         }
     }
 
+    private fun applyOrder(list: List<Channel>): List<Channel> {
+        val order = Store.channelOrder(this)
+        if (order.isEmpty()) return list
+        val idx = HashMap<String, Int>()
+        for ((i, u) in order.withIndex()) idx[u] = i
+        return list.sortedBy { idx[it.url] ?: Int.MAX_VALUE }
+    }
+
     private fun render() {
+        if (!groups.contains(curGroup)) curGroup = "Tout"
         groupAdapter.update(groups, curGroup)
         val filtered = currentFiltered()
         channelAdapter.update(filtered)
@@ -180,6 +203,14 @@ class MainActivity : AppCompatActivity() {
         p.setMediaItem(MediaItem.fromUri(c.url))
         p.prepare()
         p.playWhenReady = true
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (allChannels.isNotEmpty()) {
+            buildGroups()
+            render()
+        }
     }
 
     override fun onStop() {

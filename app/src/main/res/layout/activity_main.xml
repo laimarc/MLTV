@@ -30,6 +30,19 @@
                 android:textStyle="bold" />
 
             <Button
+                android:id="@+id/btn_manage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="6dp"
+                android:background="@drawable/btn_secondary"
+                android:text="Gérer"
+                android:textColor="@color/txt"
+                android:textAllCaps="false"
+                android:textSize="13sp"
+                android:minWidth="0dp"
+                android:paddingHorizontal="14dp" />
+
+            <Button
                 android:id="@+id/btn_sources"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

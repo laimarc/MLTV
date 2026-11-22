@@ -47,4 +47,41 @@ object Store {
         if (!set.remove(url)) set.add(url)
         prefs(c).edit().putStringSet("favs", set).apply()
     }
+
+    // ---- Masquage ----
+    fun hiddenChannels(c: Context): MutableSet<String> =
+        HashSet(prefs(c).getStringSet("hidCh", emptySet()) ?: emptySet())
+
+    fun isChannelHidden(c: Context, url: String): Boolean = hiddenChannels(c).contains(url)
+
+    fun toggleHiddenChannel(c: Context, url: String) {
+        val set = hiddenChannels(c)
+        if (!set.remove(url)) set.add(url)
+        prefs(c).edit().putStringSet("hidCh", set).apply()
+    }
+
+    fun hiddenGroups(c: Context): MutableSet<String> =
+        HashSet(prefs(c).getStringSet("hidGrp", emptySet()) ?: emptySet())
+
+    fun isGroupHidden(c: Context, name: String): Boolean = hiddenGroups(c).contains(name)
+
+    fun toggleHiddenGroup(c: Context, name: String) {
+        val set = hiddenGroups(c)
+        if (!set.remove(name)) set.add(name)
+        prefs(c).edit().putStringSet("hidGrp", set).apply()
+    }
+
+    // ---- Ordre personnalisé ----
+    fun channelOrder(c: Context): List<String> = split(prefs(c).getString("chOrder", "") ?: "")
+    fun setChannelOrder(c: Context, list: List<String>) {
+        prefs(c).edit().putString("chOrder", list.joinToString("\n")).apply()
+    }
+
+    fun groupOrder(c: Context): List<String> = split(prefs(c).getString("grpOrder", "") ?: "")
+    fun setGroupOrder(c: Context, list: List<String>) {
+        prefs(c).edit().putString("grpOrder", list.joinToString("\n")).apply()
+    }
+
+    private fun split(s: String): List<String> =
+        if (s.isEmpty()) emptyList() else s.split("\n")
 }
