@@ -29,11 +29,22 @@ object XtreamClient {
             val logo = o.optString("stream_icon", "")
             val group = catMap[o.optString("category_id")] ?: "Autres"
             val url = "$base/live/$u/$p/$sid.m3u8"
-            out.add(Channel(name, logo, group, url, o.optString("epg_channel_id", "")))
+            val archive = o.optInt("tv_archive", 0) == 1
+            out.add(Channel(name, logo, group, url, o.optString("epg_channel_id", ""), sid, archive))
         }
         if (out.isEmpty()) throw RuntimeException("Aucune chaîne reçue (identifiants ?)")
         return out
     }
+
+    /** URL de catch-up (replay) pour un programme passé. Format courant « timeshift ». */
+    fun catchupUrl(host: String, user: String, pass: String, streamId: Int, startMillis: Long, durationMin: Int): String {
+        val base = host.trimEnd('/')
+        val u = enc(user); val p = enc(pass)
+        val start = catchupFmt.format(java.util.Date(startMillis))
+        return "$base/timeshift/$u/$p/$durationMin/$start/$streamId.m3u8"
+    }
+
+    private val catchupFmt = java.text.SimpleDateFormat("yyyy-MM-dd:HH-mm", java.util.Locale.US)
 
     // ---------- FILMS (VOD) ----------
     fun fetchVod(host: String, user: String, pass: String): List<VodItem> {

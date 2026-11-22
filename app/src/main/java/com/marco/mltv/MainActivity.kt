@@ -32,6 +32,8 @@ class MainActivity : AppCompatActivity() {
     private var curGroup: String = "Tout"
     private var curEpgId: String = ""
     private var curName: String = ""
+    private var curStreamId: Int = -1
+    private var curArchive: Boolean = false
 
     private val mainHandler = Handler(Looper.getMainLooper())
 
@@ -75,6 +77,8 @@ class MainActivity : AppCompatActivity() {
                     Intent(this, EpgActivity::class.java)
                         .putExtra("epgId", curEpgId)
                         .putExtra("name", curName)
+                        .putExtra("streamId", curStreamId)
+                        .putExtra("archive", curArchive)
                 )
             }
         }
@@ -200,6 +204,8 @@ class MainActivity : AppCompatActivity() {
         val p = player ?: return
         curEpgId = c.epgId
         curName = c.name
+        curStreamId = c.streamId
+        curArchive = c.archive
         p.setMediaItem(MediaItem.fromUri(c.url))
         p.prepare()
         p.playWhenReady = true

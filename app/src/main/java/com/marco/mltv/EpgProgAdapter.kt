@@ -10,7 +10,9 @@ import java.util.Date
 import java.util.Locale
 
 class EpgProgAdapter(
-    private var items: List<Epg.Prog>
+    private var items: List<Epg.Prog>,
+    private val archive: Boolean = false,
+    private val onReplay: (Epg.Prog) -> Unit = {}
 ) : RecyclerView.Adapter<EpgProgAdapter.VH>() {
 
     private val hm = SimpleDateFormat("HH:mm", Locale.FRANCE)
@@ -34,14 +36,25 @@ class EpgProgAdapter(
     override fun onBindViewHolder(holder: VH, position: Int) {
         val p = items[position]
         holder.time.text = hm.format(Date(p.start)) + " – " + hm.format(Date(p.stop))
-        holder.title.text = p.title
+
         val now = System.currentTimeMillis()
         val isNow = p.start <= now && now < p.stop
+        val isPast = p.stop <= now
+        val replayable = archive && isPast
+
+        holder.title.text = if (replayable) "⟲ ${p.title}" else p.title
+
         val accent = 0xFFFF7A18.toInt()
         val txt = 0xFFE6EDF3.toInt()
         val muted = 0xFF8B98A9.toInt()
         holder.title.setTextColor(if (isNow) accent else txt)
         holder.time.setTextColor(if (isNow) accent else muted)
+
+        if (replayable) {
+            holder.itemView.setOnClickListener { onReplay(p) }
+        } else {
+            holder.itemView.setOnClickListener(null)
+        }
     }
 
     override fun getItemCount(): Int = items.size
