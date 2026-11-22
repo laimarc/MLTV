@@ -116,6 +116,18 @@ object Store {
         prefs(c).edit().putStringSet("hidSerCat", set).apply()
     }
 
+    // ---- Reprise de lecture (films / épisodes) : position en ms par URL ----
+    fun resumePos(c: Context, url: String): Long =
+        prefs(c).getLong("pos:" + url, 0L)
+
+    fun setResumePos(c: Context, url: String, posMs: Long) {
+        prefs(c).edit().putLong("pos:" + url, posMs).apply()
+    }
+
+    fun clearResumePos(c: Context, url: String) {
+        prefs(c).edit().remove("pos:" + url).apply()
+    }
+
     // ---- Fluidité (mémoire tampon) : "equilibre" | "confort" | "maxi" ----
     fun bufferMode(c: Context): String = prefs(c).getString("bufMode", "confort") ?: "confort"
     fun setBufferMode(c: Context, mode: String) {

@@ -6,6 +6,7 @@ import android.os.Looper
 import android.view.KeyEvent
 import android.view.View
 import android.widget.ProgressBar
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.media3.common.MediaItem
 import androidx.media3.common.util.UnstableApi
@@ -23,6 +24,15 @@ class PlayerActivity : AppCompatActivity() {
     private lateinit var overlay: View
     private val hideOverlay = Runnable { overlay.visibility = View.GONE }
 
+    // Reprise de lecture (VOD)
+    private var vodUrl: String = ""
+    private val saveTick = object : Runnable {
+        override fun run() {
+            saveProgress()
+            mainHandler.postDelayed(this, 10000)
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_player)
@@ -39,12 +49,52 @@ class PlayerActivity : AppCompatActivity() {
             playerView.useController = false
             playCurrentLive()
         } else {
-            val url = intent.getStringExtra("url") ?: ""
-            if (url.isNotEmpty()) {
-                p.setMediaItem(MediaItem.fromUri(url))
+            // Film / épisode : sous-titres (FR par défaut) + reprise
+            playerView.setShowSubtitleButton(true)
+            p.trackSelectionParameters = p.trackSelectionParameters.buildUpon()
+                .setPreferredTextLanguage("fr")
+                .build()
+            vodUrl = intent.getStringExtra("url") ?: ""
+            if (vodUrl.isNotEmpty()) {
+                p.setMediaItem(MediaItem.fromUri(vodUrl))
                 p.prepare()
+                val resume = Store.resumePos(this, vodUrl)
+                if (resume > 10000) askResume(resume) else p.playWhenReady = true
+                mainHandler.postDelayed(saveTick, 10000)
+            }
+        }
+    }
+
+    private fun askResume(posMs: Long) {
+        val p = player ?: return
+        val m = (posMs / 60000).toInt()
+        val s = ((posMs / 1000) % 60).toInt()
+        val t = String.format("%d:%02d", m, s)
+        AlertDialog.Builder(this)
+            .setTitle("Reprendre la lecture ?")
+            .setMessage("Tu t'étais arrêté à $t.")
+            .setPositiveButton("Reprendre à $t") { _, _ ->
+                p.seekTo(posMs)
                 p.playWhenReady = true
             }
+            .setNegativeButton("Depuis le début") { _, _ ->
+                p.seekTo(0)
+                p.playWhenReady = true
+            }
+            .setCancelable(false)
+            .show()
+    }
+
+    private fun saveProgress() {
+        if (live || vodUrl.isEmpty()) return
+        val p = player ?: return
+        val pos = p.currentPosition
+        val dur = p.duration
+        if (dur > 0 && pos >= dur - 15000) {
+            // terminé (ou presque) : on oublie la reprise
+            Store.clearResumePos(this, vodUrl)
+        } else if (pos > 10000) {
+            Store.setResumePos(this, vodUrl, pos)
         }
     }
 
@@ -101,11 +151,14 @@ class PlayerActivity : AppCompatActivity() {
 
     override fun onStop() {
         super.onStop()
+        saveProgress()
         player?.pause()
     }
 
     override fun onDestroy() {
         super.onDestroy()
+        mainHandler.removeCallbacks(saveTick)
+        saveProgress()
         player?.release()
         player = null
     }
