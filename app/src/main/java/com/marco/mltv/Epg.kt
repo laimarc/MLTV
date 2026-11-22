@@ -34,9 +34,16 @@ object Epg {
         loaded = true
     }
 
-    fun nowTitle(channelId: String): String? {
+    fun nowTitle(channelId: String): String? = nowProg(channelId)?.title
+
+    fun nowProg(channelId: String): Prog? {
         val t = System.currentTimeMillis()
-        return map[channelId]?.firstOrNull { it.start <= t && t < it.stop }?.title
+        return map[channelId]?.firstOrNull { it.start <= t && t < it.stop }
+    }
+
+    fun nextProg(channelId: String): Prog? {
+        val t = System.currentTimeMillis()
+        return map[channelId]?.firstOrNull { it.start > t }
     }
 
     fun list(channelId: String): List<Prog> = map[channelId] ?: emptyList()

@@ -8,6 +8,7 @@ import android.view.KeyEvent
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -30,6 +31,12 @@ class MainActivity : AppCompatActivity() {
     private lateinit var status: TextView
     private lateinit var drawer: View
     private lateinit var tvCurCat: TextView
+    private lateinit var infoOverlay: View
+    private lateinit var infoChannel: TextView
+    private lateinit var infoNow: TextView
+    private lateinit var infoNext: TextView
+    private lateinit var infoPb: ProgressBar
+    private val hideInfo = Runnable { infoOverlay.visibility = View.GONE }
 
     private lateinit var groupAdapter: GroupAdapter
     private lateinit var channelAdapter: ChannelAdapter
@@ -125,11 +132,7 @@ class MainActivity : AppCompatActivity() {
             onClick = { c ->
                 if (c.url == curUrl) {
                     // 2e appui sur la chaîne déjà lancée → plein écran
-                    startActivity(
-                        Intent(this, PlayerActivity::class.java)
-                            .putExtra("url", c.url)
-                            .putExtra("title", c.name)
-                    )
+                    openFullscreen()
                 } else {
                     // 1er appui → lecture dans la vue liste
                     play(c)
@@ -147,18 +150,19 @@ class MainActivity : AppCompatActivity() {
         )
         rvChannels.adapter = channelAdapter
 
+        infoOverlay = findViewById(R.id.info_overlay)
+        infoChannel = findViewById(R.id.tv_info_channel)
+        infoNow = findViewById(R.id.tv_info_now)
+        infoNext = findViewById(R.id.tv_info_next)
+        infoPb = findViewById(R.id.pb_info)
+
         player = ExoPlayer.Builder(this).build()
         playerView.player = player
+        hideSeekBar(playerView)
 
         // Bouton plein écran dans les contrôles du lecteur live
         playerView.setFullscreenButtonClickListener {
-            if (curUrl.isNotEmpty()) {
-                startActivity(
-                    Intent(this, PlayerActivity::class.java)
-                        .putExtra("url", curUrl)
-                        .putExtra("title", curName)
-                )
-            }
+            if (curUrl.isNotEmpty()) openFullscreen()
         }
 
         loadChannels()
@@ -331,6 +335,31 @@ class MainActivity : AppCompatActivity() {
         p.setMediaItem(MediaItem.fromUri(c.url))
         p.prepare()
         p.playWhenReady = true
+        showInfo(c.name, c.epgId)
+    }
+
+    private fun showInfo(name: String, epgId: String) {
+        InfoOverlay.populate(name, epgId, infoChannel, infoNow, infoNext, infoPb)
+        infoOverlay.visibility = View.VISIBLE
+        mainHandler.removeCallbacks(hideInfo)
+        mainHandler.postDelayed(hideInfo, 6000)
+    }
+
+    private fun openFullscreen() {
+        if (curUrl.isEmpty()) return
+        startActivity(
+            Intent(this, PlayerActivity::class.java)
+                .putExtra("url", curUrl)
+                .putExtra("title", curName)
+                .putExtra("live", true)
+                .putExtra("epgId", curEpgId)
+        )
+    }
+
+    private fun hideSeekBar(pv: PlayerView) {
+        pv.findViewById<View?>(androidx.media3.ui.R.id.exo_progress)?.visibility = View.GONE
+        pv.findViewById<View?>(androidx.media3.ui.R.id.exo_position)?.visibility = View.GONE
+        pv.findViewById<View?>(androidx.media3.ui.R.id.exo_duration)?.visibility = View.GONE
     }
 
     override fun onResume() {
