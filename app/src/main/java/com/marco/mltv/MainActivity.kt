@@ -425,9 +425,24 @@ class MainActivity : AppCompatActivity() {
         if (allChannels.isNotEmpty()) {
             buildGroups()
             render()
+            // au retour du plein écran : le cadre entoure la chaîne en cours
+            if (curUrl.isNotEmpty()) focusCurrentChannel()
         }
         // reprend le direct au retour du plein écran
         if (curUrl.isNotEmpty()) player?.playWhenReady = true
+    }
+
+    private fun focusCurrentChannel() {
+        val idx = currentFiltered().indexOfFirst { it.url == curUrl }
+        if (idx < 0) return
+        val lm = rvChannels.layoutManager as LinearLayoutManager
+        lm.scrollToPositionWithOffset(idx, rvChannels.height / 3)
+        rvChannels.post {
+            rvChannels.findViewHolderForAdapterPosition(idx)?.itemView?.requestFocus()
+                ?: rvChannels.postDelayed({
+                    rvChannels.findViewHolderForAdapterPosition(idx)?.itemView?.requestFocus()
+                }, 120)
+        }
     }
 
     override fun onStop() {
