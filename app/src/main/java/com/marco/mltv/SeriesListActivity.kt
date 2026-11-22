@@ -31,6 +31,7 @@ class SeriesListActivity : AppCompatActivity() {
     private var cats: List<String> = listOf("Tout")
     private var curCat: String = "Tout"
     private var search: String = ""
+    private var movingCat: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -107,28 +108,16 @@ class SeriesListActivity : AppCompatActivity() {
         return out
     }
 
-    private fun moveCat(c: String, up: Boolean) {
-        val list = orderedRealSeriesCats()
-        val i = list.indexOf(c)
-        val j = if (up) i - 1 else i + 1
-        if (i < 0 || j < 0 || j > list.lastIndex) return
-        val t = list[i]; list[i] = list[j]; list[j] = t
-        Store.setSeriesCatOrder(this, list)
-        buildCats()
-        render()
-    }
-
     private fun showCatMenu(c: String) {
         if (c == "Tout") return
         val hidden = Store.isSeriesCatHidden(this, c)
-        val items = arrayOf("▲ Monter", "▼ Descendre", if (hidden) "Afficher" else "Masquer")
+        val items = arrayOf("Déplacer (haut/bas)", if (hidden) "Afficher" else "Masquer")
         AlertDialog.Builder(this)
             .setTitle(c)
             .setItems(items) { _, which ->
                 when (which) {
-                    0 -> moveCat(c, true)
-                    1 -> moveCat(c, false)
-                    2 -> {
+                    0 -> startMove(c)
+                    1 -> {
                         Store.toggleHiddenSeriesCat(this, c)
                         if (curCat == c) curCat = "Tout"
                         buildCats()
@@ -137,6 +126,30 @@ class SeriesListActivity : AppCompatActivity() {
                 }
             }
             .show()
+    }
+
+    private fun startMove(c: String) {
+        if (c == "Tout") return
+        movingCat = c
+        catAdapter.setMoving(c)
+    }
+
+    private fun endMove() {
+        movingCat = null
+        catAdapter.setMoving(null)
+    }
+
+    private fun moveStep(up: Boolean) {
+        val c = movingCat ?: return
+        val from = cats.indexOf(c)
+        val to = if (up) from - 1 else from + 1
+        if (from < 0 || to < 1 || to > cats.lastIndex) return
+        val list = cats.toMutableList()
+        val item = list.removeAt(from)
+        list.add(to, item)
+        cats = list
+        catAdapter.moveItem(from, to)
+        Store.setSeriesCatOrder(this, cats.filter { it != "Tout" })
     }
 
     private fun render() {
@@ -172,6 +185,14 @@ class SeriesListActivity : AppCompatActivity() {
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
         if (event.action == KeyEvent.ACTION_DOWN) {
             val kc = event.keyCode
+            if (movingCat != null) {
+                when (kc) {
+                    KeyEvent.KEYCODE_DPAD_UP -> moveStep(true)
+                    KeyEvent.KEYCODE_DPAD_DOWN -> moveStep(false)
+                    else -> endMove()
+                }
+                return true
+            }
             if (drawer.visibility == View.VISIBLE) {
                 if (kc == KeyEvent.KEYCODE_DPAD_RIGHT || kc == KeyEvent.KEYCODE_BACK) {
                     closeDrawer(); return true

@@ -50,6 +50,7 @@ class MainActivity : AppCompatActivity() {
     private var curArchive: Boolean = false
     private var curUrl: String = ""
     private var search: String = ""
+    private var movingCat: String? = null
 
     private val mainHandler = Handler(Looper.getMainLooper())
 
@@ -256,38 +257,16 @@ class MainActivity : AppCompatActivity() {
         status.text = "${filtered.size} chaîne" + if (filtered.size > 1) "s" else ""
     }
 
-    private fun orderedRealGroups(): MutableList<String> {
-        val present = LinkedHashSet<String>()
-        for (c in allChannels) present.add(c.group)
-        val saved = Store.groupOrder(this)
-        val out = ArrayList<String>()
-        for (g in saved) if (present.contains(g) && !out.contains(g)) out.add(g)
-        for (g in present) if (!out.contains(g)) out.add(g)
-        return out
-    }
-
-    private fun moveGroup(g: String, up: Boolean) {
-        val list = orderedRealGroups()
-        val i = list.indexOf(g)
-        val j = if (up) i - 1 else i + 1
-        if (i < 0 || j < 0 || j > list.lastIndex) return
-        val tmp = list[i]; list[i] = list[j]; list[j] = tmp
-        Store.setGroupOrder(this, list)
-        buildGroups()
-        render()
-    }
-
     private fun showGroupMenu(g: String) {
         if (g == "Tout" || g == "★ Favoris") return
         val hidden = Store.isGroupHidden(this, g)
-        val items = arrayOf("▲ Monter", "▼ Descendre", if (hidden) "Afficher" else "Masquer")
+        val items = arrayOf("Déplacer (haut/bas)", if (hidden) "Afficher" else "Masquer")
         AlertDialog.Builder(this)
             .setTitle(g)
             .setItems(items) { _, which ->
                 when (which) {
-                    0 -> moveGroup(g, true)
-                    1 -> moveGroup(g, false)
-                    2 -> {
+                    0 -> startMove(g)
+                    1 -> {
                         Store.toggleHiddenGroup(this, g)
                         if (curGroup == g) curGroup = "Tout"
                         buildGroups()
@@ -296,6 +275,32 @@ class MainActivity : AppCompatActivity() {
                 }
             }
             .show()
+    }
+
+    private fun startMove(g: String) {
+        if (g == "Tout" || g == "★ Favoris") return
+        movingCat = g
+        groupAdapter.setMoving(g)
+        Toast.makeText(this, "Haut/Bas pour déplacer, OK pour valider", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun endMove() {
+        movingCat = null
+        groupAdapter.setMoving(null)
+    }
+
+    private fun moveStep(up: Boolean) {
+        val g = movingCat ?: return
+        val from = groups.indexOf(g)
+        val to = if (up) from - 1 else from + 1
+        // 0 et 1 = "Tout" et "★ Favoris", on ne déplace pas au-dessus
+        if (from < 0 || to < 2 || to > groups.lastIndex) return
+        val list = groups.toMutableList()
+        val item = list.removeAt(from)
+        list.add(to, item)
+        groups = list
+        groupAdapter.moveItem(from, to)
+        Store.setGroupOrder(this, groups.filter { it != "Tout" && it != "★ Favoris" })
     }
 
     private fun openDrawer() {
@@ -311,6 +316,14 @@ class MainActivity : AppCompatActivity() {
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
         if (event.action == KeyEvent.ACTION_DOWN) {
             val kc = event.keyCode
+            if (movingCat != null) {
+                when (kc) {
+                    KeyEvent.KEYCODE_DPAD_UP -> moveStep(true)
+                    KeyEvent.KEYCODE_DPAD_DOWN -> moveStep(false)
+                    else -> endMove()
+                }
+                return true
+            }
             if (drawer.visibility == View.VISIBLE) {
                 if (kc == KeyEvent.KEYCODE_DPAD_RIGHT || kc == KeyEvent.KEYCODE_BACK) {
                     closeDrawer()
