@@ -64,9 +64,18 @@ object XtreamClient {
             val group = catMap[o.optString("category_id")] ?: "Autres"
             val ext = o.optString("container_extension", "mp4").ifEmpty { "mp4" }
             val url = "$base/movie/$u/$p/$sid.$ext"
-            out.add(VodItem(name, poster, group, url))
+            out.add(VodItem(name, poster, group, url, sid))
         }
         return out
+    }
+
+    /** Synopsis et infos d'un film. */
+    fun fetchVodInfo(host: String, user: String, pass: String, streamId: Int): VodInfo {
+        val a = api(host, user, pass)
+        val root = JSONObject(Http.get("$a&action=get_vod_info&vod_id=$streamId"))
+        val info = root.optJSONObject("info") ?: JSONObject()
+        val plot = info.optString("plot", info.optString("description", ""))
+        return VodInfo(plot, metaLine(info))
     }
 
     // ---------- SÉRIES ----------
@@ -87,12 +96,16 @@ object XtreamClient {
         return out
     }
 
-    fun fetchSeriesInfo(host: String, user: String, pass: String, seriesId: Int): List<Season> {
+    fun fetchSeriesInfo(host: String, user: String, pass: String, seriesId: Int): SeriesInfo {
         val base = host.trimEnd('/')
         val u = enc(user); val p = enc(pass)
         val a = api(host, user, pass)
         val root = JSONObject(Http.get("$a&action=get_series_info&series_id=$seriesId"))
-        val episodesObj = root.optJSONObject("episodes") ?: return emptyList()
+        val info = root.optJSONObject("info") ?: JSONObject()
+        val plot = info.optString("plot", info.optString("description", ""))
+        val meta = metaLine(info)
+        val episodesObj = root.optJSONObject("episodes")
+            ?: return SeriesInfo(plot, meta, emptyList())
 
         val seasons = ArrayList<Season>()
         val keys = episodesObj.keys().asSequence().toList()
@@ -111,7 +124,19 @@ object XtreamClient {
             }
             if (eps.isNotEmpty()) seasons.add(Season("Saison $key", eps))
         }
-        return seasons
+        return SeriesInfo(plot, meta, seasons)
+    }
+
+    /** Construit une ligne « Genre · Année · Durée » à partir d'un bloc info. */
+    private fun metaLine(info: JSONObject): String {
+        val genre = info.optString("genre", "")
+        var year = info.optString("year", "")
+        if (year.isEmpty()) {
+            val rel = info.optString("releasedate", info.optString("release_date", ""))
+            if (rel.length >= 4) year = rel.substring(0, 4)
+        }
+        val duration = info.optString("duration", "")
+        return listOf(genre, year, duration).filter { it.isNotBlank() }.joinToString(" · ")
     }
 
     // ---------- util ----------

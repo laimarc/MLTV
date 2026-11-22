@@ -5,9 +5,11 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.widget.Button
+import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.widget.addTextChangedListener
 import androidx.media3.common.MediaItem
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
@@ -35,6 +37,7 @@ class MainActivity : AppCompatActivity() {
     private var curStreamId: Int = -1
     private var curArchive: Boolean = false
     private var curUrl: String = ""
+    private var search: String = ""
 
     private val mainHandler = Handler(Looper.getMainLooper())
 
@@ -86,6 +89,11 @@ class MainActivity : AppCompatActivity() {
 
         findViewById<Button>(R.id.btn_manage).setOnClickListener {
             startActivity(Intent(this, ManageActivity::class.java))
+        }
+
+        findViewById<EditText>(R.id.et_search).addTextChangedListener { e ->
+            search = e?.toString() ?: ""
+            render()
         }
 
         rvGroups.layoutManager =
@@ -201,11 +209,13 @@ class MainActivity : AppCompatActivity() {
         val base = applyOrder(
             allChannels.filter { !hiddenCh.contains(it.url) && !hiddenGrp.contains(it.group) }
         )
-        return when (curGroup) {
+        val byGroup = when (curGroup) {
             "Tout" -> base
             "★ Favoris" -> base.filter { favs.contains(it.url) }
             else -> base.filter { it.group == curGroup }
         }
+        return if (search.isBlank()) byGroup
+        else byGroup.filter { it.name.contains(search, ignoreCase = true) }
     }
 
     private fun applyOrder(list: List<Channel>): List<Channel> {

@@ -5,7 +5,8 @@ data class VodItem(
     val name: String,
     val poster: String,
     val group: String,
-    val url: String
+    val url: String,
+    val streamId: Int = -1
 )
 
 /** Série (Xtream) — on garde l'id pour charger saisons/épisodes. */
@@ -26,4 +27,17 @@ data class Episode(
 data class Season(
     val name: String,
     val episodes: List<Episode>
+)
+
+/** Fiche d'un film (synopsis + infos). */
+data class VodInfo(
+    val plot: String,
+    val meta: String
+)
+
+/** Fiche d'une série (synopsis + infos + saisons). */
+data class SeriesInfo(
+    val plot: String,
+    val meta: String,
+    val seasons: List<Season>
 )

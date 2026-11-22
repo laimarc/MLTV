@@ -99,6 +99,22 @@
                 android:textSize="14sp" />
         </LinearLayout>
 
+        <EditText
+            android:id="@+id/et_search"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="12dp"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/field_bg"
+            android:padding="10dp"
+            android:hint="Rechercher une chaîne…"
+            android:textColorHint="@color/muted"
+            android:textColor="@color/txt"
+            android:textSize="14sp"
+            android:inputType="text"
+            android:imeOptions="actionSearch"
+            android:maxLines="1" />
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_groups"
             android:layout_width="match_parent"

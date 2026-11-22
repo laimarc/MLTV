@@ -5,8 +5,10 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.widget.Button
+import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -22,6 +24,7 @@ class MovieActivity : AppCompatActivity() {
     private var all: List<VodItem> = emptyList()
     private var cats: List<String> = listOf("Tout")
     private var curCat: String = "Tout"
+    private var search: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,9 +43,12 @@ class MovieActivity : AppCompatActivity() {
             posterOf = { it.poster },
             onClick = { v ->
                 startActivity(
-                    Intent(this, PlayerActivity::class.java)
+                    Intent(this, MovieDetailActivity::class.java)
                         .putExtra("url", v.url)
                         .putExtra("title", v.name)
+                        .putExtra("name", v.name)
+                        .putExtra("poster", v.poster)
+                        .putExtra("streamId", v.streamId)
                 )
             }
         )
@@ -55,6 +61,11 @@ class MovieActivity : AppCompatActivity() {
             render()
         }
         rvCats.adapter = catAdapter
+
+        findViewById<EditText>(R.id.et_search).addTextChangedListener { e ->
+            search = e?.toString() ?: ""
+            render()
+        }
 
         Thread {
             try {
@@ -82,9 +93,10 @@ class MovieActivity : AppCompatActivity() {
 
     private fun render() {
         catAdapter.update(cats, curCat)
-        val filtered = if (curCat == "Tout") all else all.filter { it.group == curCat }
-        adapter.update(filtered)
-        status.text = if (filtered.isEmpty()) "Aucun film" else "${filtered.size} films"
+        var list = if (curCat == "Tout") all else all.filter { it.group == curCat }
+        if (search.isNotBlank()) list = list.filter { it.name.contains(search, ignoreCase = true) }
+        adapter.update(list)
+        status.text = if (list.isEmpty()) "Aucun film" else "${list.size} films"
     }
 
     private fun spanCount(): Int {

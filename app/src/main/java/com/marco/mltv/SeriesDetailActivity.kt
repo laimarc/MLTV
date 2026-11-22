@@ -53,13 +53,18 @@ class SeriesDetailActivity : AppCompatActivity() {
         }
         rvEpisodes.adapter = episodeAdapter
 
+        val tvMeta = findViewById<TextView>(R.id.tv_meta)
+        val tvPlot = findViewById<TextView>(R.id.tv_plot)
+
         Thread {
             try {
-                val data = XtreamClient.fetchSeriesInfo(
+                val info = XtreamClient.fetchSeriesInfo(
                     Store.host(this), Store.user(this), Store.pass(this), seriesId
                 )
                 mainHandler.post {
-                    seasons = data
+                    tvMeta.text = info.meta
+                    tvPlot.text = info.plot
+                    seasons = info.seasons
                     if (seasons.isEmpty()) {
                         status.text = "Aucun épisode disponible"
                     } else {

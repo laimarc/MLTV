@@ -5,8 +5,10 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.widget.Button
+import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -22,6 +24,7 @@ class SeriesListActivity : AppCompatActivity() {
     private var all: List<SeriesItem> = emptyList()
     private var cats: List<String> = listOf("Tout")
     private var curCat: String = "Tout"
+    private var search: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,6 +59,11 @@ class SeriesListActivity : AppCompatActivity() {
         }
         rvCats.adapter = catAdapter
 
+        findViewById<EditText>(R.id.et_search).addTextChangedListener { e ->
+            search = e?.toString() ?: ""
+            render()
+        }
+
         Thread {
             try {
                 val list = XtreamClient.fetchSeries(Store.host(this), Store.user(this), Store.pass(this))
@@ -82,9 +90,10 @@ class SeriesListActivity : AppCompatActivity() {
 
     private fun render() {
         catAdapter.update(cats, curCat)
-        val filtered = if (curCat == "Tout") all else all.filter { it.group == curCat }
-        adapter.update(filtered)
-        status.text = if (filtered.isEmpty()) "Aucune série" else "${filtered.size} séries"
+        var list = if (curCat == "Tout") all else all.filter { it.group == curCat }
+        if (search.isNotBlank()) list = list.filter { it.name.contains(search, ignoreCase = true) }
+        adapter.update(list)
+        status.text = if (list.isEmpty()) "Aucune série" else "${list.size} séries"
     }
 
     private fun spanCount(): Int {

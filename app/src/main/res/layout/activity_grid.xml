@@ -36,6 +36,22 @@
             android:paddingHorizontal="16dp" />
     </LinearLayout>
 
+    <EditText
+        android:id="@+id/et_search"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/field_bg"
+        android:padding="12dp"
+        android:hint="Rechercher…"
+        android:textColorHint="@color/muted"
+        android:textColor="@color/txt"
+        android:textSize="15sp"
+        android:inputType="text"
+        android:imeOptions="actionSearch"
+        android:maxLines="1" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_cats"
         android:layout_width="match_parent"

@@ -73,5 +73,11 @@
             android:screenOrientation="sensorLandscape"
             android:configChanges="orientation|screenSize|keyboardHidden" />
 
+        <activity
+            android:name=".MovieDetailActivity"
+            android:exported="false"
+            android:screenOrientation="sensorLandscape"
+            android:configChanges="orientation|screenSize|keyboardHidden" />
+
     </application>
 </manifest>
