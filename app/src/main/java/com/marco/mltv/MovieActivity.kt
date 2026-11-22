@@ -83,6 +83,7 @@ class MovieActivity : AppCompatActivity() {
                 mainHandler.post {
                     all = list
                     buildCats()
+                    defaultCat()?.let { curCat = it }
                     render()
                     rvGrid.requestFocus()
                 }
@@ -99,6 +100,13 @@ class MovieActivity : AppCompatActivity() {
         list.add("Tout")
         list.addAll(ordered.filter { !hidden.contains(it) })
         cats = list
+    }
+
+    /** Catégorie « Nouveauté (FR) » si elle existe (priorité à celle contenant FR). */
+    private fun defaultCat(): String? {
+        val news = cats.filter { it != "Tout" && it.contains("nouveaut", ignoreCase = true) }
+        if (news.isEmpty()) return null
+        return news.firstOrNull { it.contains("fr", ignoreCase = true) } ?: news.first()
     }
 
     private fun orderedRealVodCats(): MutableList<String> {
@@ -200,6 +208,7 @@ class MovieActivity : AppCompatActivity() {
                 if (kc == KeyEvent.KEYCODE_DPAD_RIGHT || kc == KeyEvent.KEYCODE_BACK) {
                     closeDrawer(); return true
                 }
+                if (kc == KeyEvent.KEYCODE_DPAD_LEFT) { finish(); return true }
             } else if (kc == KeyEvent.KEYCODE_DPAD_LEFT) {
                 val cur = currentFocus
                 if (cur !is EditText) {
