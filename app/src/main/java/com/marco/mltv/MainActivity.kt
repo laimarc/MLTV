@@ -34,6 +34,7 @@ class MainActivity : AppCompatActivity() {
     private var curName: String = ""
     private var curStreamId: Int = -1
     private var curArchive: Boolean = false
+    private var curUrl: String = ""
 
     private val mainHandler = Handler(Looper.getMainLooper())
 
@@ -116,6 +117,17 @@ class MainActivity : AppCompatActivity() {
 
         player = ExoPlayer.Builder(this).build()
         playerView.player = player
+
+        // Bouton plein écran dans les contrôles du lecteur live
+        playerView.setFullscreenButtonClickListener {
+            if (curUrl.isNotEmpty()) {
+                startActivity(
+                    Intent(this, PlayerActivity::class.java)
+                        .putExtra("url", curUrl)
+                        .putExtra("title", curName)
+                )
+            }
+        }
 
         loadChannels()
     }
@@ -206,6 +218,7 @@ class MainActivity : AppCompatActivity() {
         curName = c.name
         curStreamId = c.streamId
         curArchive = c.archive
+        curUrl = c.url
         p.setMediaItem(MediaItem.fromUri(c.url))
         p.prepare()
         p.playWhenReady = true
@@ -217,6 +230,8 @@ class MainActivity : AppCompatActivity() {
             buildGroups()
             render()
         }
+        // reprend le direct au retour du plein écran
+        if (curUrl.isNotEmpty()) player?.playWhenReady = true
     }
 
     override fun onStop() {
