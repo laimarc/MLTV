@@ -23,6 +23,15 @@ class GroupAdapter(
         notifyDataSetChanged()
     }
 
+    /** Met à jour la surbrillance « sélection » sans reconstruire la liste (garde le focus). */
+    fun setCurrent(newCur: String) {
+        val old = groups.indexOf(current)
+        current = newCur
+        val neu = groups.indexOf(newCur)
+        if (old >= 0) notifyItemChanged(old)
+        if (neu >= 0) notifyItemChanged(neu)
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
         val v = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_group, parent, false)

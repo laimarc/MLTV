@@ -119,7 +119,8 @@ class MainActivity : AppCompatActivity() {
             groups, curGroup,
             onClick = { g ->
                 curGroup = g
-                render()
+                groupAdapter.setCurrent(g)
+                renderList()
             },
             onLongClick = { g -> showGroupMenu(g) }
         )
@@ -245,6 +246,10 @@ class MainActivity : AppCompatActivity() {
     private fun render() {
         if (!groups.contains(curGroup)) curGroup = "Tout"
         groupAdapter.update(groups, curGroup)
+        renderList()
+    }
+
+    private fun renderList() {
         tvCurCat.text = curGroup
         val filtered = currentFiltered()
         channelAdapter.update(filtered)

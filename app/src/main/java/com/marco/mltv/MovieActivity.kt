@@ -66,7 +66,7 @@ class MovieActivity : AppCompatActivity() {
         rvCatDrawer.layoutManager = LinearLayoutManager(this)
         catAdapter = GroupAdapter(
             cats, curCat,
-            onClick = { c -> curCat = c; render() },
+            onClick = { c -> curCat = c; catAdapter.setCurrent(c); renderGrid() },
             onLongClick = { c -> showCatMenu(c) }
         )
         rvCatDrawer.adapter = catAdapter
@@ -145,6 +145,10 @@ class MovieActivity : AppCompatActivity() {
     private fun render() {
         if (!cats.contains(curCat)) curCat = "Tout"
         catAdapter.update(cats, curCat)
+        renderGrid()
+    }
+
+    private fun renderGrid() {
         var list = if (curCat == "Tout") all.filter { !Store.isVodCatHidden(this, it.group) }
         else all.filter { it.group == curCat }
         if (search.isNotBlank()) list = list.filter { it.name.contains(search, ignoreCase = true) }

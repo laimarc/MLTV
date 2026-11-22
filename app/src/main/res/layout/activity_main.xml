@@ -9,7 +9,7 @@
     <!-- Bandeau catégories (ouvre à gauche) -->
     <LinearLayout
         android:id="@+id/drawer"
-        android:layout_width="280dp"
+        android:layout_width="210dp"
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:background="@color/panel2"
@@ -36,7 +36,7 @@
 
     <!-- Panneau gauche -->
     <LinearLayout
-        android:layout_width="360dp"
+        android:layout_width="300dp"
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:background="@color/panel">
