@@ -51,10 +51,10 @@ class ManageActivity : AppCompatActivity() {
         rv.adapter = manageAdapter
 
         rvCats.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-        catAdapter = GroupAdapter(emptyList(), "") { c ->
+        catAdapter = GroupAdapter(emptyList(), "", onClick = { c ->
             mCat = c
             renderChannels()
-        }
+        })
         rvCats.adapter = catAdapter
 
         btnChannels.setOnClickListener {

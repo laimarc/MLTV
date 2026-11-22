@@ -37,11 +37,11 @@ class SeriesDetailActivity : AppCompatActivity() {
             LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         rvEpisodes.layoutManager = LinearLayoutManager(this)
 
-        seasonAdapter = GroupAdapter(emptyList(), "") { s ->
+        seasonAdapter = GroupAdapter(emptyList(), "", onClick = { s ->
             currentSeason = s
             renderEpisodes()
             seasonAdapter.update(seasons.map { it.name }, currentSeason)
-        }
+        })
         rvSeasons.adapter = seasonAdapter
 
         episodeAdapter = EpisodeAdapter(emptyList()) { ep ->
