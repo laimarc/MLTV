@@ -92,8 +92,8 @@ class PlayerActivity : AppCompatActivity() {
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
         if (live && event.action == KeyEvent.ACTION_DOWN && LiveSession.channels.isNotEmpty()) {
             when (event.keyCode) {
-                KeyEvent.KEYCODE_DPAD_UP -> { zap(-1); return true }
-                KeyEvent.KEYCODE_DPAD_DOWN -> { zap(1); return true }
+                KeyEvent.KEYCODE_DPAD_UP -> { zap(1); return true }
+                KeyEvent.KEYCODE_DPAD_DOWN -> { zap(-1); return true }
             }
         }
         return super.dispatchKeyEvent(event)
