@@ -3,6 +3,17 @@ plugins {
     id 'org.jetbrains.kotlin.android'
 }
 
+def vCode = 1
+def envCode = System.getenv("VERSION_CODE")
+if (envCode != null && !envCode.trim().isEmpty()) {
+    vCode = envCode.trim().toInteger()
+}
+def vName = "1.0"
+def envName = System.getenv("VERSION_NAME")
+if (envName != null && !envName.trim().isEmpty()) {
+    vName = envName.trim()
+}
+
 android {
     namespace 'com.marco.mltv'
     compileSdk 34
@@ -11,8 +22,8 @@ android {
         applicationId "com.marco.mltv"
         minSdk 21
         targetSdk 34
-        versionCode (System.getenv("VERSION_CODE") ?: "1").toInteger()
-        versionName (System.getenv("VERSION_NAME") ?: "1.0")
+        versionCode vCode
+        versionName vName
     }
 
     buildFeatures {
