@@ -50,3 +50,15 @@ jobs:
           gh release create latest MLTV.apk \
             --title "MLTV — dernière version" \
             --notes "APK du dernier build. Installe via Downloader avec le lien raccourci."
+
+      - name: Préparer le site (fichier direct)
+        run: |
+          mkdir -p site
+          cp app/build/outputs/apk/debug/app-debug.apk site/MLTV.apk
+          printf '%s\n' '<!doctype html><meta charset="utf-8"><title>MLTV</title><body style="font-family:sans-serif;background:#0e1116;color:#e6edf3;text-align:center;padding:40px"><h1>ML<span style="color:#ff7a18">TV</span></h1><p><a style="color:#ff7a18;font-size:20px" href="MLTV.apk">Télécharger MLTV.apk</a></p></body>' > site/index.html
+
+      - name: Déployer sur GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./site
