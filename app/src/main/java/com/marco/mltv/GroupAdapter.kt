@@ -9,7 +9,8 @@ import androidx.recyclerview.widget.RecyclerView
 class GroupAdapter(
     private var groups: List<String>,
     private var current: String,
-    private val onClick: (String) -> Unit
+    private val onClick: (String) -> Unit,
+    private val onLongClick: (String) -> Unit = {}
 ) : RecyclerView.Adapter<GroupAdapter.VH>() {
 
     class VH(v: View) : RecyclerView.ViewHolder(v) {
@@ -33,6 +34,7 @@ class GroupAdapter(
         holder.tv.text = g
         holder.tv.isSelected = g == current
         holder.tv.setOnClickListener { onClick(g) }
+        holder.tv.setOnLongClickListener { onLongClick(g); true }
     }
 
     override fun getItemCount(): Int = groups.size

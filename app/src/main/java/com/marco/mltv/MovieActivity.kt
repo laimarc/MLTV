@@ -9,6 +9,7 @@ import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.GridLayoutManager
@@ -63,11 +64,11 @@ class MovieActivity : AppCompatActivity() {
 
         rvCatDrawer = findViewById(R.id.rv_catdrawer)
         rvCatDrawer.layoutManager = LinearLayoutManager(this)
-        catAdapter = GroupAdapter(cats, curCat) { c ->
-            curCat = c
-            closeDrawer()
-            render()
-        }
+        catAdapter = GroupAdapter(
+            cats, curCat,
+            onClick = { c -> curCat = c; render() },
+            onLongClick = { c -> showCatMenu(c) }
+        )
         rvCatDrawer.adapter = catAdapter
 
         findViewById<EditText>(R.id.et_search).addTextChangedListener { e ->
@@ -91,17 +92,61 @@ class MovieActivity : AppCompatActivity() {
     }
 
     private fun buildCats() {
-        val distinct = LinkedHashSet<String>()
-        for (v in all) distinct.add(v.group)
+        val ordered = orderedRealVodCats()
+        val hidden = Store.hiddenVodCats(this)
         val list = ArrayList<String>()
         list.add("Tout")
-        list.addAll(distinct)
+        list.addAll(ordered.filter { !hidden.contains(it) })
         cats = list
     }
 
+    private fun orderedRealVodCats(): MutableList<String> {
+        val present = LinkedHashSet<String>()
+        for (v in all) present.add(v.group)
+        val saved = Store.vodCatOrder(this)
+        val out = ArrayList<String>()
+        for (g in saved) if (present.contains(g) && !out.contains(g)) out.add(g)
+        for (g in present) if (!out.contains(g)) out.add(g)
+        return out
+    }
+
+    private fun moveCat(c: String, up: Boolean) {
+        val list = orderedRealVodCats()
+        val i = list.indexOf(c)
+        val j = if (up) i - 1 else i + 1
+        if (i < 0 || j < 0 || j > list.lastIndex) return
+        val t = list[i]; list[i] = list[j]; list[j] = t
+        Store.setVodCatOrder(this, list)
+        buildCats()
+        render()
+    }
+
+    private fun showCatMenu(c: String) {
+        if (c == "Tout") return
+        val hidden = Store.isVodCatHidden(this, c)
+        val items = arrayOf("▲ Monter", "▼ Descendre", if (hidden) "Afficher" else "Masquer")
+        AlertDialog.Builder(this)
+            .setTitle(c)
+            .setItems(items) { _, which ->
+                when (which) {
+                    0 -> moveCat(c, true)
+                    1 -> moveCat(c, false)
+                    2 -> {
+                        Store.toggleHiddenVodCat(this, c)
+                        if (curCat == c) curCat = "Tout"
+                        buildCats()
+                        render()
+                    }
+                }
+            }
+            .show()
+    }
+
     private fun render() {
+        if (!cats.contains(curCat)) curCat = "Tout"
         catAdapter.update(cats, curCat)
-        var list = if (curCat == "Tout") all else all.filter { it.group == curCat }
+        var list = if (curCat == "Tout") all.filter { !Store.isVodCatHidden(this, it.group) }
+        else all.filter { it.group == curCat }
         if (search.isNotBlank()) list = list.filter { it.name.contains(search, ignoreCase = true) }
         adapter.update(list)
         status.text = if (list.isEmpty()) "Aucun film" else "${list.size} films"

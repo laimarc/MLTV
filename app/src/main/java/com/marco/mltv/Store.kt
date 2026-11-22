@@ -82,6 +82,40 @@ object Store {
         prefs(c).edit().putString("grpOrder", list.joinToString("\n")).apply()
     }
 
+    // ---- Catégories Films (VOD) ----
+    fun vodCatOrder(c: Context): List<String> = split(prefs(c).getString("vodCatOrder", "") ?: "")
+    fun setVodCatOrder(c: Context, list: List<String>) {
+        prefs(c).edit().putString("vodCatOrder", list.joinToString("\n")).apply()
+    }
+
+    fun hiddenVodCats(c: Context): MutableSet<String> =
+        HashSet(prefs(c).getStringSet("hidVodCat", emptySet()) ?: emptySet())
+
+    fun isVodCatHidden(c: Context, name: String): Boolean = hiddenVodCats(c).contains(name)
+
+    fun toggleHiddenVodCat(c: Context, name: String) {
+        val set = hiddenVodCats(c)
+        if (!set.remove(name)) set.add(name)
+        prefs(c).edit().putStringSet("hidVodCat", set).apply()
+    }
+
+    // ---- Catégories Séries ----
+    fun seriesCatOrder(c: Context): List<String> = split(prefs(c).getString("serCatOrder", "") ?: "")
+    fun setSeriesCatOrder(c: Context, list: List<String>) {
+        prefs(c).edit().putString("serCatOrder", list.joinToString("\n")).apply()
+    }
+
+    fun hiddenSeriesCats(c: Context): MutableSet<String> =
+        HashSet(prefs(c).getStringSet("hidSerCat", emptySet()) ?: emptySet())
+
+    fun isSeriesCatHidden(c: Context, name: String): Boolean = hiddenSeriesCats(c).contains(name)
+
+    fun toggleHiddenSeriesCat(c: Context, name: String) {
+        val set = hiddenSeriesCats(c)
+        if (!set.remove(name)) set.add(name)
+        prefs(c).edit().putStringSet("hidSerCat", set).apply()
+    }
+
     private fun split(s: String): List<String> =
         if (s.isEmpty()) emptyList() else s.split("\n")
 }

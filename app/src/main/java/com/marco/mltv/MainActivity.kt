@@ -10,6 +10,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.addTextChangedListener
 import androidx.media3.common.MediaItem
@@ -107,11 +108,14 @@ class MainActivity : AppCompatActivity() {
         rvCatDrawer.layoutManager = LinearLayoutManager(this)
         rvChannels.layoutManager = LinearLayoutManager(this)
 
-        groupAdapter = GroupAdapter(groups, curGroup) { g ->
-            curGroup = g
-            closeDrawer()
-            render()
-        }
+        groupAdapter = GroupAdapter(
+            groups, curGroup,
+            onClick = { g ->
+                curGroup = g
+                render()
+            },
+            onLongClick = { g -> showGroupMenu(g) }
+        )
         rvCatDrawer.adapter = groupAdapter
 
         channelAdapter = ChannelAdapter(
@@ -241,6 +245,48 @@ class MainActivity : AppCompatActivity() {
         val filtered = currentFiltered()
         channelAdapter.update(filtered)
         status.text = "${filtered.size} chaîne" + if (filtered.size > 1) "s" else ""
+    }
+
+    private fun orderedRealGroups(): MutableList<String> {
+        val present = LinkedHashSet<String>()
+        for (c in allChannels) present.add(c.group)
+        val saved = Store.groupOrder(this)
+        val out = ArrayList<String>()
+        for (g in saved) if (present.contains(g) && !out.contains(g)) out.add(g)
+        for (g in present) if (!out.contains(g)) out.add(g)
+        return out
+    }
+
+    private fun moveGroup(g: String, up: Boolean) {
+        val list = orderedRealGroups()
+        val i = list.indexOf(g)
+        val j = if (up) i - 1 else i + 1
+        if (i < 0 || j < 0 || j > list.lastIndex) return
+        val tmp = list[i]; list[i] = list[j]; list[j] = tmp
+        Store.setGroupOrder(this, list)
+        buildGroups()
+        render()
+    }
+
+    private fun showGroupMenu(g: String) {
+        if (g == "Tout" || g == "★ Favoris") return
+        val hidden = Store.isGroupHidden(this, g)
+        val items = arrayOf("▲ Monter", "▼ Descendre", if (hidden) "Afficher" else "Masquer")
+        AlertDialog.Builder(this)
+            .setTitle(g)
+            .setItems(items) { _, which ->
+                when (which) {
+                    0 -> moveGroup(g, true)
+                    1 -> moveGroup(g, false)
+                    2 -> {
+                        Store.toggleHiddenGroup(this, g)
+                        if (curGroup == g) curGroup = "Tout"
+                        buildGroups()
+                        render()
+                    }
+                }
+            }
+            .show()
     }
 
     private fun openDrawer() {
