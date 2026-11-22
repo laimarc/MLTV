@@ -102,7 +102,19 @@ class MainActivity : AppCompatActivity() {
             emptyList(),
             favUrls = { Store.favorites(this) },
             nowTitle = { id -> Epg.nowTitle(id) },
-            onClick = { c -> play(c) },
+            onClick = { c ->
+                if (c.url == curUrl) {
+                    // 2e appui sur la chaîne déjà lancée → plein écran
+                    startActivity(
+                        Intent(this, PlayerActivity::class.java)
+                            .putExtra("url", c.url)
+                            .putExtra("title", c.name)
+                    )
+                } else {
+                    // 1er appui → lecture dans la vue liste
+                    play(c)
+                }
+            },
             onLongClick = { c ->
                 Store.toggleFavorite(this, c.url)
                 channelAdapter.update(currentFiltered())
