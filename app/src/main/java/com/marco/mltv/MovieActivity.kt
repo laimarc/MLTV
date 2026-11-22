@@ -181,7 +181,16 @@ class MovieActivity : AppCompatActivity() {
 
     private fun openDrawer() {
         drawer.visibility = View.VISIBLE
-        rvCatDrawer.requestFocus()
+        val idx = cats.indexOf(curCat)
+        if (idx < 0) { rvCatDrawer.requestFocus(); return }
+        val lm = rvCatDrawer.layoutManager as LinearLayoutManager
+        lm.scrollToPositionWithOffset(idx, rvCatDrawer.height / 3)
+        rvCatDrawer.post {
+            rvCatDrawer.findViewHolderForAdapterPosition(idx)?.itemView?.findViewById<View>(R.id.tv_group)?.requestFocus()
+                ?: rvCatDrawer.postDelayed({
+                    rvCatDrawer.findViewHolderForAdapterPosition(idx)?.itemView?.findViewById<View>(R.id.tv_group)?.requestFocus()
+                }, 120)
+        }
     }
 
     private fun closeDrawer() {
