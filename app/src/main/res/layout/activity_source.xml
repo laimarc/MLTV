@@ -176,11 +176,84 @@
             android:textSize="14sp"
             android:gravity="center" />
 
+        <!-- Fluidité (mémoire tampon) -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="18dp"
+            android:layout_marginTop="28dp"
+            android:text="Fluidité (mémoire tampon)"
+            android:textColor="@color/txt"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:gravity="center" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="12dp"
+            android:text="Plus de tampon = moins de coupures, mais démarrage un peu plus lent."
+            android:textColor="@color/muted"
+            android:textSize="13sp"
+            android:gravity="center" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:baselineAligned="false">
+
+            <Button
+                android:id="@+id/btn_buf_equilibre"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="7dp"
+                android:background="@drawable/btn_secondary"
+                android:text="Équilibré"
+                android:textColor="@color/txt"
+                android:textAllCaps="false"
+                android:textSize="14sp" />
+
+            <Button
+                android:id="@+id/btn_buf_confort"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginHorizontal="7dp"
+                android:background="@drawable/btn_secondary"
+                android:text="Confort"
+                android:textColor="@color/txt"
+                android:textAllCaps="false"
+                android:textSize="14sp" />
+
+            <Button
+                android:id="@+id/btn_buf_maxi"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="7dp"
+                android:background="@drawable/btn_secondary"
+                android:text="Maxi"
+                android:textColor="@color/txt"
+                android:textAllCaps="false"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="28dp"
             android:text="Les identifiants restent sur l'appareil."
+            android:textColor="@color/muted"
+            android:textSize="12sp"
+            android:gravity="center" />
+
+        <TextView
+            android:id="@+id/tv_version"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
             android:textColor="@color/muted"
             android:textSize="12sp"
             android:gravity="center" />

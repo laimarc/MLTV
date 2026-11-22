@@ -31,7 +31,7 @@ class PlayerActivity : AppCompatActivity() {
         val playerView = findViewById<PlayerView>(R.id.player_view)
         overlay = findViewById(R.id.info_overlay)
 
-        val p = ExoPlayer.Builder(this).build()
+        val p = PlayerFactory.create(this)
         player = p
         playerView.player = p
 

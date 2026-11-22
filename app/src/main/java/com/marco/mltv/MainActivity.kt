@@ -159,7 +159,7 @@ class MainActivity : AppCompatActivity() {
         )
         rvChannels.adapter = channelAdapter
 
-        player = ExoPlayer.Builder(this).build()
+        player = PlayerFactory.create(this)
         playerView.player = player
         playerView.useController = false
 

@@ -6,6 +6,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 
 class SourceActivity : AppCompatActivity() {
 
@@ -56,6 +57,30 @@ class SourceActivity : AppCompatActivity() {
                 goMain()
             }
         }
+
+        // ---- Fluidité (mémoire tampon) ----
+        val bEq = findViewById<Button>(R.id.btn_buf_equilibre)
+        val bCo = findViewById<Button>(R.id.btn_buf_confort)
+        val bMx = findViewById<Button>(R.id.btn_buf_maxi)
+        fun refreshBuf() {
+            val m = Store.bufferMode(this)
+            for ((btn, mode) in listOf(bEq to "equilibre", bCo to "confort", bMx to "maxi")) {
+                if (mode == m) {
+                    btn.setBackgroundResource(R.drawable.btn_accent)
+                    btn.setTextColor(ContextCompat.getColor(this, R.color.accent_text))
+                } else {
+                    btn.setBackgroundResource(R.drawable.btn_secondary)
+                    btn.setTextColor(ContextCompat.getColor(this, R.color.txt))
+                }
+            }
+        }
+        bEq.setOnClickListener { Store.setBufferMode(this, "equilibre"); refreshBuf() }
+        bCo.setOnClickListener { Store.setBufferMode(this, "confort"); refreshBuf() }
+        bMx.setOnClickListener { Store.setBufferMode(this, "maxi"); refreshBuf() }
+        refreshBuf()
+
+        // ---- Version ----
+        findViewById<TextView>(R.id.tv_version).text = "MLTV  v${BuildConfig.VERSION_NAME}"
     }
 
     private fun goMain() {

@@ -116,6 +116,12 @@ object Store {
         prefs(c).edit().putStringSet("hidSerCat", set).apply()
     }
 
+    // ---- Fluidité (mémoire tampon) : "equilibre" | "confort" | "maxi" ----
+    fun bufferMode(c: Context): String = prefs(c).getString("bufMode", "confort") ?: "confort"
+    fun setBufferMode(c: Context, mode: String) {
+        prefs(c).edit().putString("bufMode", mode).apply()
+    }
+
     private fun split(s: String): List<String> =
         if (s.isEmpty()) emptyList() else s.split("\n")
 }
