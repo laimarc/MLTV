@@ -11,8 +11,9 @@ import java.util.Locale
 
 class EpgProgAdapter(
     private var items: List<Epg.Prog>,
-    private val archive: Boolean = false,
-    private val onReplay: (Epg.Prog) -> Unit = {}
+    private var archive: Boolean = false,
+    private val onReplay: (Epg.Prog) -> Unit = {},
+    private val onFocus: (Epg.Prog) -> Unit = {}
 ) : RecyclerView.Adapter<EpgProgAdapter.VH>() {
 
     private val hm = SimpleDateFormat("HH:mm", Locale.FRANCE)
@@ -23,6 +24,12 @@ class EpgProgAdapter(
     }
 
     fun update(items: List<Epg.Prog>) {
+        this.items = items
+        notifyDataSetChanged()
+    }
+
+    fun update(items: List<Epg.Prog>, archive: Boolean) {
+        this.archive = archive
         this.items = items
         notifyDataSetChanged()
     }
@@ -49,6 +56,8 @@ class EpgProgAdapter(
         val muted = 0xFF8B98A9.toInt()
         holder.title.setTextColor(if (isNow) accent else txt)
         holder.time.setTextColor(if (isNow) accent else muted)
+
+        holder.itemView.setOnFocusChangeListener { _, hasFocus -> if (hasFocus) onFocus(p) }
 
         if (replayable) {
             holder.itemView.setOnClickListener { onReplay(p) }

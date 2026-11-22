@@ -91,17 +91,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         findViewById<Button>(R.id.btn_guide).setOnClickListener {
-            if (curEpgId.isEmpty()) {
-                Toast.makeText(this, "Choisis d'abord une chaîne", Toast.LENGTH_SHORT).show()
-            } else {
-                startActivity(
-                    Intent(this, EpgActivity::class.java)
-                        .putExtra("epgId", curEpgId)
-                        .putExtra("name", curName)
-                        .putExtra("streamId", curStreamId)
-                        .putExtra("archive", curArchive)
-                )
-            }
+            startActivity(Intent(this, GuideActivity::class.java))
         }
 
         findViewById<Button>(R.id.btn_manage).setOnClickListener {
