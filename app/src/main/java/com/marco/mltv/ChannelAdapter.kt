@@ -11,6 +11,7 @@ import coil.load
 class ChannelAdapter(
     private var items: List<Channel>,
     private val favUrls: () -> Set<String>,
+    private val nowTitle: (String) -> String?,
     private val onClick: (Channel) -> Unit,
     private val onLongClick: (Channel) -> Unit
 ) : RecyclerView.Adapter<ChannelAdapter.VH>() {
@@ -45,7 +46,8 @@ class ChannelAdapter(
             holder.logo.setImageDrawable(null)
         }
         holder.name.text = c.name
-        holder.groupName.text = c.group
+        val now = if (c.epgId.isNotEmpty()) nowTitle(c.epgId) else null
+        holder.groupName.text = now ?: c.group
         holder.star.visibility = if (favUrls().contains(c.url)) View.VISIBLE else View.GONE
         holder.itemView.setOnClickListener { onClick(c) }
         holder.itemView.setOnLongClickListener {

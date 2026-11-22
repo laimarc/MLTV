@@ -30,6 +30,8 @@ class MainActivity : AppCompatActivity() {
     private var allChannels: List<Channel> = emptyList()
     private var groups: List<String> = listOf("Tout")
     private var curGroup: String = "Tout"
+    private var curEpgId: String = ""
+    private var curName: String = ""
 
     private val mainHandler = Handler(Looper.getMainLooper())
 
@@ -65,6 +67,18 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        findViewById<Button>(R.id.btn_guide).setOnClickListener {
+            if (curEpgId.isEmpty()) {
+                Toast.makeText(this, "Choisis d'abord une chaîne", Toast.LENGTH_SHORT).show()
+            } else {
+                startActivity(
+                    Intent(this, EpgActivity::class.java)
+                        .putExtra("epgId", curEpgId)
+                        .putExtra("name", curName)
+                )
+            }
+        }
+
         rvGroups.layoutManager =
             LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         rvChannels.layoutManager = LinearLayoutManager(this)
@@ -78,6 +92,7 @@ class MainActivity : AppCompatActivity() {
         channelAdapter = ChannelAdapter(
             emptyList(),
             favUrls = { Store.favorites(this) },
+            nowTitle = { id -> Epg.nowTitle(id) },
             onClick = { c -> play(c) },
             onLongClick = { c ->
                 Store.toggleFavorite(this, c.url)
@@ -107,11 +122,27 @@ class MainActivity : AppCompatActivity() {
                     buildGroups()
                     render()
                     rvChannels.requestFocus()
+                    loadEpg()
                 }
             } catch (e: Exception) {
                 mainHandler.post {
                     status.text = "Erreur : ${e.message}\nAppuie sur « Sources » pour vérifier."
                 }
+            }
+        }.start()
+    }
+
+    private fun loadEpg() {
+        if (Store.type(this) != "xtream" || Epg.loaded) {
+            if (Epg.loaded) channelAdapter.update(currentFiltered())
+            return
+        }
+        Thread {
+            try {
+                Epg.ensureLoaded(Store.host(this), Store.user(this), Store.pass(this))
+                mainHandler.post { channelAdapter.update(currentFiltered()) }
+            } catch (e: Exception) {
+                // EPG indisponible : on garde les groupes, pas de blocage
             }
         }.start()
     }
@@ -144,6 +175,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun play(c: Channel) {
         val p = player ?: return
+        curEpgId = c.epgId
+        curName = c.name
         p.setMediaItem(MediaItem.fromUri(c.url))
         p.prepare()
         p.playWhenReady = true
