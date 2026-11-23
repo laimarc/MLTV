@@ -37,6 +37,16 @@ class MainActivity : AppCompatActivity() {
     private lateinit var drawer: View
     private lateinit var tvCurCat: TextView
 
+    private lateinit var tvClock: TextView
+    private val clockFmt = SimpleDateFormat("EEE d MMM 'à' HH:mm", Locale.FRANCE)
+    private val clockTick = object : Runnable {
+        override fun run() {
+            tvClock.text = clockFmt.format(Date()).replaceFirstChar { it.uppercase() }
+            mainHandler.postDelayed(this, 30000)
+        }
+    }
+    private fun startClock() { mainHandler.post(clockTick) }
+
     private lateinit var rvProgs: RecyclerView
     private lateinit var tvChHeader: TextView
     private lateinit var tvDetailTitle: TextView
@@ -73,6 +83,8 @@ class MainActivity : AppCompatActivity() {
         status = findViewById(R.id.tv_status)
         drawer = findViewById(R.id.drawer)
         tvCurCat = findViewById(R.id.tv_curcat)
+        tvClock = findViewById(R.id.tv_clock)
+        startClock()
         rvProgs = findViewById(R.id.rv_progs)
         tvChHeader = findViewById(R.id.tv_ch_header)
         tvDetailTitle = findViewById(R.id.tv_detail_title)
@@ -496,6 +508,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        mainHandler.removeCallbacks(clockTick)
         player?.release()
         player = null
     }
