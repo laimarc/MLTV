@@ -12,13 +12,13 @@ object Theme {
     val options: List<Opt> by lazy {
         listOf(
             Opt("orange", "Orange", 0xFFFF7A18.toInt(), R.style.Accent_Orange),
-            Opt("bleu", "Bleu", 0xFF3B82F6.toInt(), R.style.Accent_Bleu),
-            Opt("vert", "Vert", 0xFF22B85C.toInt(), R.style.Accent_Vert),
-            Opt("rouge", "Rouge", 0xFFE4484B.toInt(), R.style.Accent_Rouge),
-            Opt("violet", "Violet", 0xFF8B5CF6.toInt(), R.style.Accent_Violet),
-            Opt("cyan", "Cyan", 0xFF22B8CF.toInt(), R.style.Accent_Cyan),
-            Opt("rose", "Rose", 0xFFEC4899.toInt(), R.style.Accent_Rose),
-            Opt("jaune", "Jaune", 0xFFF5C518.toInt(), R.style.Accent_Jaune)
+            Opt("indigo", "Indigo", 0xFF6366F1.toInt(), R.style.Accent_Indigo),
+            Opt("emeraude", "Émeraude", 0xFF10B981.toInt(), R.style.Accent_Emeraude),
+            Opt("cyan", "Cyan", 0xFF06B6D4.toInt(), R.style.Accent_Cyan),
+            Opt("rose", "Rose", 0xFFF43F5E.toInt(), R.style.Accent_Rose),
+            Opt("violet", "Violet", 0xFFA855F7.toInt(), R.style.Accent_Violet),
+            Opt("ambre", "Ambre", 0xFFF59E0B.toInt(), R.style.Accent_Ambre),
+            Opt("sarcelle", "Sarcelle", 0xFF14B8A6.toInt(), R.style.Accent_Sarcelle)
         )
     }
 

@@ -5,32 +5,32 @@
         <item name="accentColor">#FFFF7A18</item>
         <item name="accentText">#FF1A1200</item>
     </style>
-    <style name="Accent.Bleu" parent="">
-        <item name="accentColor">#FF3B82F6</item>
+    <style name="Accent.Indigo" parent="">
+        <item name="accentColor">#FF6366F1</item>
         <item name="accentText">#FFFFFFFF</item>
     </style>
-    <style name="Accent.Vert" parent="">
-        <item name="accentColor">#FF22B85C</item>
-        <item name="accentText">#FF04210F</item>
+    <style name="Accent.Emeraude" parent="">
+        <item name="accentColor">#FF10B981</item>
+        <item name="accentText">#FF022B1E</item>
     </style>
-    <style name="Accent.Rouge" parent="">
-        <item name="accentColor">#FFE4484B</item>
+    <style name="Accent.Cyan" parent="">
+        <item name="accentColor">#FF06B6D4</item>
+        <item name="accentText">#FF04242B</item>
+    </style>
+    <style name="Accent.Rose" parent="">
+        <item name="accentColor">#FFF43F5E</item>
         <item name="accentText">#FFFFFFFF</item>
     </style>
     <style name="Accent.Violet" parent="">
-        <item name="accentColor">#FF8B5CF6</item>
+        <item name="accentColor">#FFA855F7</item>
         <item name="accentText">#FFFFFFFF</item>
     </style>
-    <style name="Accent.Cyan" parent="">
-        <item name="accentColor">#FF22B8CF</item>
-        <item name="accentText">#FF052A31</item>
+    <style name="Accent.Ambre" parent="">
+        <item name="accentColor">#FFF59E0B</item>
+        <item name="accentText">#FF2A1C00</item>
     </style>
-    <style name="Accent.Rose" parent="">
-        <item name="accentColor">#FFEC4899</item>
-        <item name="accentText">#FFFFFFFF</item>
-    </style>
-    <style name="Accent.Jaune" parent="">
-        <item name="accentColor">#FFF5C518</item>
-        <item name="accentText">#FF2A2100</item>
+    <style name="Accent.Sarcelle" parent="">
+        <item name="accentColor">#FF14B8A6</item>
+        <item name="accentText">#FF04231F</item>
     </style>
 </resources>
