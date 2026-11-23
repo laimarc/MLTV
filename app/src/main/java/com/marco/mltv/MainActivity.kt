@@ -15,6 +15,8 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.addTextChangedListener
 import androidx.media3.common.MediaItem
+import androidx.media3.common.PlaybackException
+import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
@@ -162,6 +164,13 @@ class MainActivity : AppCompatActivity() {
         player = PlayerFactory.create(this)
         playerView.player = player
         playerView.useController = false
+        player?.addListener(object : Player.Listener {
+            override fun onPlayerError(error: PlaybackException) {
+                mainHandler.postDelayed({
+                    player?.let { it.seekToDefaultPosition(); it.prepare(); it.playWhenReady = true }
+                }, 1500)
+            }
+        })
 
         loadChannels()
         Updater.checkAsync(this)

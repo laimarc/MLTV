@@ -9,6 +9,8 @@ import android.widget.ProgressBar
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.media3.common.MediaItem
+import androidx.media3.common.PlaybackException
+import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
@@ -44,6 +46,14 @@ class PlayerActivity : AppCompatActivity() {
         val p = PlayerFactory.create(this)
         player = p
         playerView.player = p
+
+        // Reconnexion automatique en cas de coupure réseau / flux
+        p.addListener(object : Player.Listener {
+            override fun onPlayerError(error: PlaybackException) { reconnect() }
+            override fun onPlaybackStateChanged(state: Int) {
+                if (state == Player.STATE_READY) retries = 0
+            }
+        })
 
         if (live) {
             playerView.useController = false
@@ -134,6 +144,21 @@ class PlayerActivity : AppCompatActivity() {
         mainHandler.postDelayed(hideOverlay, 6000)
     }
 
+    private var retries = 0
+    private val reconnectRun = Runnable {
+        val p = player ?: return@Runnable
+        if (live) p.seekToDefaultPosition()   // revient au bord du direct
+        p.prepare()                            // la VOD garde sa position
+        p.playWhenReady = true
+    }
+
+    private fun reconnect() {
+        retries++
+        val delay = if (retries <= 3) 1500L else 4000L
+        mainHandler.removeCallbacks(reconnectRun)
+        mainHandler.postDelayed(reconnectRun, delay)
+    }
+
     private fun zap(delta: Int) {
         val n = LiveSession.channels.size
         if (n == 0) return
@@ -161,6 +186,7 @@ class PlayerActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         mainHandler.removeCallbacks(saveTick)
+        mainHandler.removeCallbacks(reconnectRun)
         saveProgress()
         player?.release()
         player = null
