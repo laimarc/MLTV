@@ -32,6 +32,7 @@ class PlayerActivity : AppCompatActivity() {
 
     // Reprise de lecture (VOD)
     private var vodUrl: String = ""
+    private var hasTextTracks = false
     private val saveTick = object : Runnable {
         override fun run() {
             saveProgress()
@@ -69,10 +70,17 @@ class PlayerActivity : AppCompatActivity() {
                 .build()
             val btnSubs = findViewById<Button>(R.id.btn_subs)
             btnSubs.setOnClickListener { showSubtitleMenu() }
+            // n'apparaît qu'avec les commandes du lecteur, et seulement s'il y a des sous-titres
+            playerView.setControllerVisibilityListener(
+                PlayerView.ControllerVisibilityListener { vis ->
+                    btnSubs.visibility =
+                        if (vis == View.VISIBLE && hasTextTracks) View.VISIBLE else View.GONE
+                }
+            )
             p.addListener(object : Player.Listener {
                 override fun onTracksChanged(tracks: Tracks) {
-                    val hasText = tracks.groups.any { it.type == C.TRACK_TYPE_TEXT }
-                    btnSubs.visibility = if (hasText) View.VISIBLE else View.GONE
+                    hasTextTracks = tracks.groups.any { it.type == C.TRACK_TYPE_TEXT }
+                    if (!hasTextTracks) btnSubs.visibility = View.GONE
                 }
             })
             vodUrl = intent.getStringExtra("url") ?: ""
