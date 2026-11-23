@@ -51,8 +51,8 @@ object Epg {
     // ---------- parsing ----------
     private fun parse(stream: java.io.InputStream): Map<String, MutableList<Prog>> {
         val now = System.currentTimeMillis()
-        val minKeep = now - 3L * 3600_000L            // -3 h
-        val maxKeep = now + 3L * 24 * 3600_000L       // +3 jours
+        val minKeep = now - 8L * 24 * 3600_000L        // -8 jours (replay / rattrapage)
+        val maxKeep = now + 3L * 24 * 3600_000L        // +3 jours
         val out = HashMap<String, MutableList<Prog>>()
 
         val parser = Xml.newPullParser()
