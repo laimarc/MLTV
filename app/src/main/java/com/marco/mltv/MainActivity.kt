@@ -445,6 +445,7 @@ class MainActivity : AppCompatActivity() {
             Intent(this, PlayerActivity::class.java)
                 .putExtra("url", url)
                 .putExtra("title", "⟲ " + prog.title)
+                .putExtra("catchup", true)
         )
     }
 

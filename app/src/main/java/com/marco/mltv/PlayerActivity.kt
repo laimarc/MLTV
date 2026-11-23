@@ -17,6 +17,7 @@ import androidx.media3.common.TrackSelectionOverride
 import androidx.media3.common.Tracks
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.source.ProgressiveMediaSource
 import androidx.media3.ui.PlayerView
 
 /** Lecture plein écran. En direct : pas de barre de défilement, overlay info + zapping haut/bas. */
@@ -76,11 +77,21 @@ class PlayerActivity : AppCompatActivity() {
             })
             vodUrl = intent.getStringExtra("url") ?: ""
             if (vodUrl.isNotEmpty()) {
-                p.setMediaItem(MediaItem.fromUri(vodUrl))
-                p.prepare()
-                val resume = Store.resumePos(this, vodUrl)
-                if (resume > 10000) askResume(resume) else p.playWhenReady = true
-                mainHandler.postDelayed(saveTick, 10000)
+                if (intent.getBooleanExtra("catchup", false)) {
+                    // Rattrapage : flux TS brut via la couche réseau tolérante
+                    val factory = TolerantHttpDataSource.Factory("VLC/3.0.20 LibVLC/3.0.20")
+                    val source = ProgressiveMediaSource.Factory(factory)
+                        .createMediaSource(MediaItem.fromUri(vodUrl))
+                    p.setMediaSource(source)
+                    p.prepare()
+                    p.playWhenReady = true
+                } else {
+                    p.setMediaItem(MediaItem.fromUri(vodUrl))
+                    p.prepare()
+                    val resume = Store.resumePos(this, vodUrl)
+                    if (resume > 10000) askResume(resume) else p.playWhenReady = true
+                    mainHandler.postDelayed(saveTick, 10000)
+                }
             }
         }
     }
