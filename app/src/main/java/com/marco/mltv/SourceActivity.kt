@@ -112,7 +112,11 @@ class SourceActivity : AppCompatActivity() {
             val cur = currentFocus
             if (cur !is EditText) {
                 val next = cur?.focusSearch(View.FOCUS_LEFT)
-                if (next == null || next === cur) { finish(); return true }
+                if (next == null || next === cur) {
+                    // retour à la liste des chaînes (si une source est configurée)
+                    if (Store.type(this).isNotEmpty()) goMain()
+                    return true
+                }
             }
         }
         return super.dispatchKeyEvent(event)
