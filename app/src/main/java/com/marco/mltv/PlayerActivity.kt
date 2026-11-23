@@ -6,6 +6,7 @@ import android.os.Looper
 import android.view.KeyEvent
 import android.view.View
 import android.widget.ProgressBar
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.media3.common.C
@@ -52,7 +53,17 @@ class PlayerActivity : AppCompatActivity() {
 
         // Reconnexion automatique en cas de coupure réseau / flux
         p.addListener(object : Player.Listener {
-            override fun onPlayerError(error: PlaybackException) { reconnect() }
+            override fun onPlayerError(error: PlaybackException) {
+                if (!live) {
+                    val cause = error.cause?.message?.take(80) ?: ""
+                    Toast.makeText(
+                        this@PlayerActivity,
+                        "Lecture : ${error.errorCodeName}\n$cause",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+                reconnect()
+            }
             override fun onPlaybackStateChanged(state: Int) {
                 if (state == Player.STATE_READY) retries = 0
             }
