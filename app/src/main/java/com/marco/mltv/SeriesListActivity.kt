@@ -96,14 +96,19 @@ class SeriesListActivity : AppCompatActivity() {
         val list = ArrayList<String>()
         list.add("Tout")
         list.add(WATCH)
+        list.add(HIST)
         list.addAll(ordered.filter { !hidden.contains(it) })
         cats = list
     }
 
-    /** Catégorie par défaut : la 1re vraie catégorie (après « Tout » et « À regarder »). */
-    private fun defaultCat(): String? = cats.firstOrNull { it != "Tout" && it != WATCH }
+    /** Catégorie par défaut : la 1re vraie catégorie (après les rubriques fixes). */
+    private fun defaultCat(): String? = cats.firstOrNull { it !in fixedCats }
 
-    companion object { const val WATCH = "★ À regarder" }
+    companion object {
+        const val WATCH = "★ À regarder"
+        const val HIST = "⟳ Historique"
+        val fixedCats = setOf("Tout", WATCH, HIST)
+    }
 
     private fun orderedRealSeriesCats(): MutableList<String> {
         val present = LinkedHashSet<String>()
@@ -116,7 +121,7 @@ class SeriesListActivity : AppCompatActivity() {
     }
 
     private fun showCatMenu(c: String) {
-        if (c == "Tout" || c == WATCH) return
+        if (c in fixedCats) return
         val hidden = Store.isSeriesCatHidden(this, c)
         val items = arrayOf("Déplacer (haut/bas)", if (hidden) "Afficher" else "Masquer")
         AlertDialog.Builder(this)
@@ -136,7 +141,7 @@ class SeriesListActivity : AppCompatActivity() {
     }
 
     private fun startMove(c: String) {
-        if (c == "Tout" || c == WATCH) return
+        if (c in fixedCats) return
         movingCat = c
         catAdapter.setMoving(c)
     }
@@ -150,13 +155,13 @@ class SeriesListActivity : AppCompatActivity() {
         val c = movingCat ?: return
         val from = cats.indexOf(c)
         val to = if (up) from - 1 else from + 1
-        if (from < 0 || to < 2 || to > cats.lastIndex) return
+        if (from < 0 || to < fixedCats.size || to > cats.lastIndex) return
         val list = cats.toMutableList()
         val item = list.removeAt(from)
         list.add(to, item)
         cats = list
         catAdapter.moveItem(from, to)
-        Store.setSeriesCatOrder(this, cats.filter { it != "Tout" && it != WATCH })
+        Store.setSeriesCatOrder(this, cats.filter { it !in fixedCats })
     }
 
     private fun render() {
@@ -169,6 +174,11 @@ class SeriesListActivity : AppCompatActivity() {
         var list = when (curCat) {
             "Tout" -> all.filter { !Store.isSeriesCatHidden(this, it.group) }
             WATCH -> all.filter { Store.isSeriesWatch(this, it.seriesId) }
+            HIST -> {
+                val order = Store.seriesHistory(this)
+                val byId = all.associateBy { it.seriesId }
+                order.mapNotNull { byId[it] }
+            }
             else -> all.filter { it.group == curCat }
         }
         if (search.isNotBlank()) list = list.filter { it.name.contains(search, ignoreCase = true) }
@@ -176,6 +186,7 @@ class SeriesListActivity : AppCompatActivity() {
         status.text = when {
             list.isNotEmpty() -> "${list.size} séries"
             curCat == WATCH -> "Ta liste est vide — ouvre une série puis « À regarder »"
+            curCat == HIST -> "Aucune série regardée pour l'instant"
             else -> "Aucune série"
         }
     }

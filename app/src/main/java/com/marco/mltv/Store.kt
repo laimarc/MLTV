@@ -139,6 +139,29 @@ object Store {
         prefs(c).edit().putStringSet("watchSer", set).apply()
     }
 
+    // ---- Historique (films / séries) : ids les plus récents en premier ----
+    fun movieHistory(c: Context): List<Int> =
+        (prefs(c).getString("histVod", "") ?: "").split(",").filter { it.isNotBlank() }.map { it.toInt() }
+
+    fun addMovieHistory(c: Context, id: Int) {
+        if (id < 0) return
+        val l = movieHistory(c).toMutableList()
+        l.remove(id); l.add(0, id)
+        while (l.size > 60) l.removeAt(l.size - 1)
+        prefs(c).edit().putString("histVod", l.joinToString(",")).apply()
+    }
+
+    fun seriesHistory(c: Context): List<Int> =
+        (prefs(c).getString("histSer", "") ?: "").split(",").filter { it.isNotBlank() }.map { it.toInt() }
+
+    fun addSeriesHistory(c: Context, id: Int) {
+        if (id < 0) return
+        val l = seriesHistory(c).toMutableList()
+        l.remove(id); l.add(0, id)
+        while (l.size > 60) l.removeAt(l.size - 1)
+        prefs(c).edit().putString("histSer", l.joinToString(",")).apply()
+    }
+
     // ---- Reprise de lecture (films / épisodes) : position en ms par URL ----
     fun resumePos(c: Context, url: String): Long =
         prefs(c).getLong("pos:" + url, 0L)

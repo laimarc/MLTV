@@ -50,6 +50,7 @@ class MovieDetailActivity : AppCompatActivity() {
 
         val btnPlay = findViewById<Button>(R.id.btn_play)
         btnPlay.setOnClickListener {
+            Store.addMovieHistory(this, streamId)
             startActivity(
                 Intent(this, PlayerActivity::class.java)
                     .putExtra("url", url)

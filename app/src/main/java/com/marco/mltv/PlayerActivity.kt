@@ -104,16 +104,16 @@ class PlayerActivity : AppCompatActivity() {
             val url = intent.getStringExtra("url") ?: ""
             val name = intent.getStringExtra("title") ?: ""
             val epgId = intent.getStringExtra("epgId") ?: ""
-            playUrl(url, name, epgId)
+            playUrl(url, name, epgId, "")
             return
         }
         val idx = LiveSession.index.coerceIn(0, list.lastIndex)
         LiveSession.index = idx
         val c = list[idx]
-        playUrl(c.url, c.name, c.epgId)
+        playUrl(c.url, c.name, c.epgId, c.logo)
     }
 
-    private fun playUrl(url: String, name: String, epgId: String) {
+    private fun playUrl(url: String, name: String, epgId: String, logo: String) {
         val p = player ?: return
         if (url.isNotEmpty()) {
             p.setMediaItem(MediaItem.fromUri(url))
@@ -125,7 +125,9 @@ class PlayerActivity : AppCompatActivity() {
             findViewById(R.id.tv_info_channel),
             findViewById(R.id.tv_info_now),
             findViewById(R.id.tv_info_next),
-            findViewById<ProgressBar>(R.id.pb_info)
+            findViewById<ProgressBar>(R.id.pb_info),
+            logo,
+            findViewById(R.id.iv_info_logo)
         )
         overlay.visibility = View.VISIBLE
         mainHandler.removeCallbacks(hideOverlay)

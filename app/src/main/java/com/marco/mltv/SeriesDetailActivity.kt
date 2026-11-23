@@ -58,6 +58,7 @@ class SeriesDetailActivity : AppCompatActivity() {
         rvSeasons.adapter = seasonAdapter
 
         episodeAdapter = EpisodeAdapter(emptyList()) { ep ->
+            Store.addSeriesHistory(this, seriesId)
             startActivity(
                 Intent(this, PlayerActivity::class.java)
                     .putExtra("url", ep.url)
