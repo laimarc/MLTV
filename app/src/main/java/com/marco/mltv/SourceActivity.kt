@@ -2,6 +2,7 @@ package com.marco.mltv
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.KeyEvent
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
@@ -104,5 +105,16 @@ class SourceActivity : AppCompatActivity() {
     private fun goMain() {
         startActivity(Intent(this, MainActivity::class.java))
         finish()
+    }
+
+    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        if (event.action == KeyEvent.ACTION_DOWN && event.keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
+            val cur = currentFocus
+            if (cur !is EditText) {
+                val next = cur?.focusSearch(View.FOCUS_LEFT)
+                if (next == null || next === cur) { finish(); return true }
+            }
+        }
+        return super.dispatchKeyEvent(event)
     }
 }
