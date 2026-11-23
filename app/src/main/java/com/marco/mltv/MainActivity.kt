@@ -150,6 +150,7 @@ class MainActivity : AppCompatActivity() {
                 }
             },
             onLongClick = { c ->
+                val oldIdx = currentFiltered().indexOfFirst { it.url == c.url }
                 Store.toggleFavorite(this, c.url)
                 channelAdapter.update(currentFiltered())
                 Toast.makeText(
@@ -157,6 +158,15 @@ class MainActivity : AppCompatActivity() {
                     if (Store.isFavorite(this, c.url)) "Ajouté aux favoris" else "Retiré des favoris",
                     Toast.LENGTH_SHORT
                 ).show()
+                // garder le cadre sur la chaîne choisie (et non en haut de liste)
+                val list = currentFiltered()
+                if (list.isNotEmpty()) {
+                    val here = list.indexOfFirst { it.url == c.url }
+                    val target = if (here >= 0) here else oldIdx.coerceIn(0, list.lastIndex)
+                    (rvChannels.layoutManager as LinearLayoutManager)
+                        .scrollToPositionWithOffset(target, rvChannels.height / 3)
+                    tryFocusChannel(target, 0)
+                }
             }
         )
         rvChannels.adapter = channelAdapter
