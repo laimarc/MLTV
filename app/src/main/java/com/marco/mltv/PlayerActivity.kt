@@ -6,7 +6,6 @@ import android.os.Looper
 import android.view.KeyEvent
 import android.view.View
 import android.widget.ProgressBar
-import android.widget.Button
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.media3.common.C
@@ -32,7 +31,6 @@ class PlayerActivity : AppCompatActivity() {
 
     // Reprise de lecture (VOD)
     private var vodUrl: String = ""
-    private var hasTextTracks = false
     private val saveTick = object : Runnable {
         override fun run() {
             saveProgress()
@@ -64,24 +62,11 @@ class PlayerActivity : AppCompatActivity() {
             playerView.useController = false
             playCurrentLive()
         } else {
-            // Film / épisode : sous-titres (FR par défaut au 1er affichage) + reprise
-            p.trackSelectionParameters = p.trackSelectionParameters.buildUpon()
-                .setPreferredTextLanguage("fr")
-                .build()
-            val btnSubs = findViewById<Button>(R.id.btn_subs)
-            btnSubs.setOnClickListener { showSubtitleMenu() }
-            // n'apparaît qu'avec les commandes du lecteur, et seulement s'il y a des sous-titres
-            playerView.setControllerVisibilityListener(
-                PlayerView.ControllerVisibilityListener { vis ->
-                    btnSubs.visibility =
-                        if (vis == View.VISIBLE && hasTextTracks) View.VISIBLE else View.GONE
-                }
-            )
+            // Film / épisode : bouton sous-titres natif (dans la barre, à côté de la roue),
+            // sous-titres forcés affichés d'office + reprise
+            playerView.setShowSubtitleButton(true)
             p.addListener(object : Player.Listener {
-                override fun onTracksChanged(tracks: Tracks) {
-                    hasTextTracks = tracks.groups.any { it.type == C.TRACK_TYPE_TEXT }
-                    if (!hasTextTracks) btnSubs.visibility = View.GONE
-                }
+                override fun onTracksChanged(tracks: Tracks) { applyForcedDefault(tracks) }
             })
             vodUrl = intent.getStringExtra("url") ?: ""
             if (vodUrl.isNotEmpty()) {
@@ -94,57 +79,40 @@ class PlayerActivity : AppCompatActivity() {
         }
     }
 
-    private fun showSubtitleMenu() {
+    /** Au 1er chargement des pistes : affiche la piste forcée (dialogues étrangers)
+     *  comme au cinéma ; sinon sous-titres coupés. L'utilisateur garde la main ensuite. */
+    private var autoSubDone = false
+    private fun applyForcedDefault(tracks: Tracks) {
+        if (autoSubDone) return
         val p = player ?: return
-        val groups = p.currentTracks.groups.filter { it.type == C.TRACK_TYPE_TEXT }
-        // libellés : Désactivés + chaque piste
-        data class Opt(val label: String, val groupIdx: Int, val trackIdx: Int)
-        val opts = ArrayList<Opt>()
-        opts.add(Opt("Désactivés", -1, -1))
-        groups.forEachIndexed { gi, g ->
-            for (ti in 0 until g.length) {
-                val f = g.getTrackFormat(ti)
-                val lang = f.language?.let { langName(it) } ?: "Piste ${ti + 1}"
-                val extra = f.label?.let { " – $it" } ?: ""
-                opts.add(Opt(lang + extra, gi, ti))
-            }
-        }
-        val textDisabled = p.trackSelectionParameters.disabledTrackTypes.contains(C.TRACK_TYPE_TEXT)
-        val curSel = when {
-            textDisabled -> 0
-            else -> opts.indexOfFirst { it.groupIdx >= 0 && groups[it.groupIdx].isTrackSelected(it.trackIdx) }.coerceAtLeast(0)
-        }
-        AlertDialog.Builder(this)
-            .setTitle("Sous-titres")
-            .setSingleChoiceItems(opts.map { it.label }.toTypedArray(), curSel) { d, which ->
-                val o = opts[which]
-                val b = p.trackSelectionParameters.buildUpon()
-                    .clearOverridesOfType(C.TRACK_TYPE_TEXT)
-                    .setPreferredTextLanguage(null)
-                if (o.groupIdx < 0) {
-                    b.setTrackTypeDisabled(C.TRACK_TYPE_TEXT, true)
-                } else {
-                    b.setTrackTypeDisabled(C.TRACK_TYPE_TEXT, false)
-                    b.setOverrideForType(
-                        TrackSelectionOverride(groups[o.groupIdx].mediaTrackGroup, o.trackIdx)
-                    )
-                }
-                p.trackSelectionParameters = b.build()
-                d.dismiss()
-            }
-            .show()
-    }
+        val groups = tracks.groups.filter { it.type == C.TRACK_TYPE_TEXT }
+        if (groups.isEmpty()) return
+        autoSubDone = true
 
-    private fun langName(code: String): String = when (code.lowercase().take(2)) {
-        "fr" -> "Français"
-        "en" -> "Anglais"
-        "ar" -> "Arabe"
-        "es" -> "Espagnol"
-        "de" -> "Allemand"
-        "it" -> "Italien"
-        "pt" -> "Portugais"
-        "nl" -> "Néerlandais"
-        else -> code.uppercase()
+        var grp: Tracks.Group? = null
+        var idx = -1
+        outer@ for (g in groups) {
+            for (i in 0 until g.length) {
+                val f = g.getTrackFormat(i)
+                val forced = (f.selectionFlags and C.SELECTION_FLAG_FORCED) != 0
+                if (forced) {
+                    val isFr = f.language?.lowercase()?.take(2) == "fr"
+                    if (isFr) { grp = g; idx = i; break@outer }
+                    if (grp == null) { grp = g; idx = i }
+                }
+            }
+        }
+
+        val b = p.trackSelectionParameters.buildUpon()
+            .clearOverridesOfType(C.TRACK_TYPE_TEXT)
+            .setPreferredTextLanguage(null)
+        if (grp != null) {
+            b.setTrackTypeDisabled(C.TRACK_TYPE_TEXT, false)
+            b.setOverrideForType(TrackSelectionOverride(grp.mediaTrackGroup, idx))
+        } else {
+            b.setTrackTypeDisabled(C.TRACK_TYPE_TEXT, true) // pas de forcé : coupé par défaut
+        }
+        p.trackSelectionParameters = b.build()
     }
 
     private fun askResume(posMs: Long) {
