@@ -447,6 +447,12 @@ class MainActivity : AppCompatActivity() {
         if (allChannels.isNotEmpty()) {
             buildGroups()
             render()
+            // synchronise avec la dernière chaîne zappée en plein écran
+            val ls = LiveSession.channels
+            val li = LiveSession.index
+            if (ls.isNotEmpty() && li in ls.indices && ls[li].url != curUrl) {
+                play(ls[li])
+            }
             // au retour du plein écran : le cadre entoure la chaîne en cours
             if (curUrl.isNotEmpty()) focusCurrentChannel()
         }

@@ -1,324 +1,337 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/bg"
-    android:fillViewport="true">
+    android:orientation="horizontal">
 
+    <!-- Bandeau gauche : catégories de réglages -->
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_width="280dp"
+        android:layout_height="match_parent"
         android:orientation="vertical"
-        android:gravity="center_horizontal"
-        android:paddingHorizontal="48dp"
-        android:paddingVertical="36dp">
+        android:background="@color/panel"
+        android:padding="22dp">
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="bottom">
+            android:gravity="bottom"
+            android:layout_marginBottom="6dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/app_name"
                 android:textColor="@color/accent"
-                android:textSize="40sp"
+                android:textSize="30sp"
                 android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/tv_version"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:layout_marginBottom="7dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginBottom="5dp"
                 android:textColor="@color/muted"
-                android:textSize="14sp" />
+                android:textSize="13sp" />
         </LinearLayout>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:layout_marginBottom="28dp"
+            android:layout_marginBottom="24dp"
             android:text="Paramètres"
             android:textColor="@color/muted"
-            android:textSize="15sp" />
+            android:textSize="14sp" />
 
-        <LinearLayout
+        <Button
+            android:id="@+id/btn_tab_source"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="22dp">
-
-            <Button
-                android:id="@+id/btn_tab_source"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginEnd="7dp"
-                android:background="@drawable/btn_accent"
-                android:text="Source"
-                android:textColor="@color/accent_text"
-                android:textAllCaps="false"
-                android:textStyle="bold"
-                android:textSize="15sp" />
-
-            <Button
-                android:id="@+id/btn_tab_buffer"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginStart="7dp"
-                android:background="@drawable/btn_secondary"
-                android:text="Fluidité (tampon)"
-                android:textColor="@color/txt"
-                android:textAllCaps="false"
-                android:textSize="15sp" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/sec_source"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
+            android:layout_marginBottom="10dp"
+            android:background="@drawable/btn_accent"
             android:text="Liste de lecture (source)"
-            android:textColor="@color/txt"
-            android:textSize="16sp"
+            android:textColor="@color/accent_text"
+            android:textAllCaps="false"
             android:textStyle="bold"
-            android:gravity="center" />
+            android:textSize="15sp"
+            android:gravity="start|center_vertical"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="14dp" />
+
+        <Button
+            android:id="@+id/btn_tab_buffer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/btn_secondary"
+            android:text="Réglage tampon"
+            android:textColor="@color/txt"
+            android:textAllCaps="false"
+            android:textSize="15sp"
+            android:gravity="start|center_vertical"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="14dp" />
+    </LinearLayout>
+
+    <!-- Contenu à droite -->
+    <ScrollView
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:fillViewport="true">
 
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:baselineAligned="false">
-
-            <!-- M3U -->
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginEnd="14dp"
-                android:orientation="vertical"
-                android:background="@color/panel"
-                android:padding="22dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Playlist M3U"
-                    android:textColor="@color/txt"
-                    android:textSize="19sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:layout_marginBottom="16dp"
-                    android:text="Colle l'URL de ta playlist"
-                    android:textColor="@color/muted"
-                    android:textSize="13sp" />
-
-                <EditText
-                    android:id="@+id/et_m3u"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/field_bg"
-                    android:padding="14dp"
-                    android:hint="http://exemple.com/playlist.m3u"
-                    android:textColorHint="@color/muted"
-                    android:textColor="@color/txt"
-                    android:textSize="15sp"
-                    android:inputType="textUri"
-                    android:imeOptions="actionDone" />
-
-                <Button
-                    android:id="@+id/btn_m3u"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:background="@drawable/btn_secondary"
-                    android:text="Charger la playlist"
-                    android:textColor="@color/txt"
-                    android:textAllCaps="false"
-                    android:textSize="15sp" />
-            </LinearLayout>
-
-            <!-- Xtream -->
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginStart="14dp"
-                android:orientation="vertical"
-                android:background="@color/panel"
-                android:padding="22dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Xtream Codes"
-                    android:textColor="@color/txt"
-                    android:textSize="19sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:layout_marginBottom="16dp"
-                    android:text="Serveur + identifiants"
-                    android:textColor="@color/muted"
-                    android:textSize="13sp" />
-
-                <EditText
-                    android:id="@+id/et_host"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="10dp"
-                    android:background="@drawable/field_bg"
-                    android:padding="14dp"
-                    android:hint="http://serveur:port"
-                    android:textColorHint="@color/muted"
-                    android:textColor="@color/txt"
-                    android:textSize="15sp"
-                    android:inputType="textUri" />
-
-                <EditText
-                    android:id="@+id/et_user"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="10dp"
-                    android:background="@drawable/field_bg"
-                    android:padding="14dp"
-                    android:hint="Utilisateur"
-                    android:textColorHint="@color/muted"
-                    android:textColor="@color/txt"
-                    android:textSize="15sp"
-                    android:inputType="text" />
-
-                <EditText
-                    android:id="@+id/et_pass"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/field_bg"
-                    android:padding="14dp"
-                    android:hint="Mot de passe"
-                    android:textColorHint="@color/muted"
-                    android:textColor="@color/txt"
-                    android:textSize="15sp"
-                    android:inputType="textPassword" />
-
-                <Button
-                    android:id="@+id/btn_xtream"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:background="@drawable/btn_accent"
-                    android:text="Se connecter"
-                    android:textColor="@color/accent_text"
-                    android:textAllCaps="false"
-                    android:textStyle="bold"
-                    android:textSize="16sp" />
-            </LinearLayout>
-        </LinearLayout>
-
-        <TextView
-            android:id="@+id/tv_err"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:textColor="#FF6B6B"
-            android:textSize="14sp"
-            android:gravity="center" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:text="Les identifiants restent sur l'appareil."
-            android:textColor="@color/muted"
-            android:textSize="12sp"
-            android:gravity="center" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/sec_buffer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:visibility="gone">
+            android:paddingHorizontal="40dp"
+            android:paddingVertical="36dp">
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="Fluidité (mémoire tampon)"
-            android:textColor="@color/txt"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:gravity="center" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:layout_marginBottom="12dp"
-            android:text="Plus de tampon = moins de coupures, mais démarrage un peu plus lent."
-            android:textColor="@color/muted"
-            android:textSize="13sp"
-            android:gravity="center" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:baselineAligned="false">
-
-            <Button
-                android:id="@+id/btn_buf_equilibre"
-                android:layout_width="0dp"
+            <!-- Section SOURCE -->
+            <LinearLayout
+                android:id="@+id/sec_source"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginEnd="7dp"
-                android:background="@drawable/btn_secondary"
-                android:text="Équilibré"
-                android:textColor="@color/txt"
-                android:textAllCaps="false"
-                android:textSize="14sp" />
+                android:orientation="vertical">
 
-            <Button
-                android:id="@+id/btn_buf_confort"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginHorizontal="7dp"
-                android:background="@drawable/btn_secondary"
-                android:text="Confort"
-                android:textColor="@color/txt"
-                android:textAllCaps="false"
-                android:textSize="14sp" />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:text="Liste de lecture (source)"
+                    android:textColor="@color/txt"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
 
-            <Button
-                android:id="@+id/btn_buf_maxi"
-                android:layout_width="0dp"
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:baselineAligned="false">
+
+                    <!-- M3U -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="14dp"
+                        android:orientation="vertical"
+                        android:background="@color/bg"
+                        android:padding="22dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Playlist M3U"
+                            android:textColor="@color/txt"
+                            android:textSize="19sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:layout_marginBottom="16dp"
+                            android:text="Colle l'URL de ta playlist"
+                            android:textColor="@color/muted"
+                            android:textSize="13sp" />
+
+                        <EditText
+                            android:id="@+id/et_m3u"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/field_bg"
+                            android:padding="14dp"
+                            android:hint="http://exemple.com/playlist.m3u"
+                            android:textColorHint="@color/muted"
+                            android:textColor="@color/txt"
+                            android:textSize="15sp"
+                            android:inputType="textUri"
+                            android:imeOptions="actionDone" />
+
+                        <Button
+                            android:id="@+id/btn_m3u"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp"
+                            android:background="@drawable/btn_secondary"
+                            android:text="Charger la playlist"
+                            android:textColor="@color/txt"
+                            android:textAllCaps="false"
+                            android:textSize="15sp" />
+                    </LinearLayout>
+
+                    <!-- Xtream -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="14dp"
+                        android:orientation="vertical"
+                        android:background="@color/bg"
+                        android:padding="22dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Xtream Codes"
+                            android:textColor="@color/txt"
+                            android:textSize="19sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:layout_marginBottom="16dp"
+                            android:text="Serveur + identifiants"
+                            android:textColor="@color/muted"
+                            android:textSize="13sp" />
+
+                        <EditText
+                            android:id="@+id/et_host"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="10dp"
+                            android:background="@drawable/field_bg"
+                            android:padding="14dp"
+                            android:hint="http://serveur:port"
+                            android:textColorHint="@color/muted"
+                            android:textColor="@color/txt"
+                            android:textSize="15sp"
+                            android:inputType="textUri" />
+
+                        <EditText
+                            android:id="@+id/et_user"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="10dp"
+                            android:background="@drawable/field_bg"
+                            android:padding="14dp"
+                            android:hint="Utilisateur"
+                            android:textColorHint="@color/muted"
+                            android:textColor="@color/txt"
+                            android:textSize="15sp"
+                            android:inputType="text" />
+
+                        <EditText
+                            android:id="@+id/et_pass"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/field_bg"
+                            android:padding="14dp"
+                            android:hint="Mot de passe"
+                            android:textColorHint="@color/muted"
+                            android:textColor="@color/txt"
+                            android:textSize="15sp"
+                            android:inputType="textPassword" />
+
+                        <Button
+                            android:id="@+id/btn_xtream"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp"
+                            android:background="@drawable/btn_accent"
+                            android:text="Se connecter"
+                            android:textColor="@color/accent_text"
+                            android:textAllCaps="false"
+                            android:textStyle="bold"
+                            android:textSize="16sp" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tv_err"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:textColor="#FF6B6B"
+                    android:textSize="14sp"
+                    android:gravity="center" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:text="Les identifiants restent sur l'appareil."
+                    android:textColor="@color/muted"
+                    android:textSize="12sp"
+                    android:gravity="center" />
+            </LinearLayout>
+
+            <!-- Section TAMPON -->
+            <LinearLayout
+                android:id="@+id/sec_buffer"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginStart="7dp"
-                android:background="@drawable/btn_secondary"
-                android:text="Maxi"
-                android:textColor="@color/txt"
-                android:textAllCaps="false"
-                android:textSize="14sp" />
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Réglage tampon (fluidité)"
+                    android:textColor="@color/txt"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:layout_marginBottom="18dp"
+                    android:text="Plus de tampon = moins de coupures, mais démarrage un peu plus lent. En direct, « Équilibré » reste souvent le plus fluide."
+                    android:textColor="@color/muted"
+                    android:textSize="13sp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:baselineAligned="false">
+
+                    <Button
+                        android:id="@+id/btn_buf_equilibre"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="7dp"
+                        android:background="@drawable/btn_secondary"
+                        android:text="Équilibré"
+                        android:textColor="@color/txt"
+                        android:textAllCaps="false"
+                        android:textSize="14sp"
+                        android:paddingVertical="12dp" />
+
+                    <Button
+                        android:id="@+id/btn_buf_confort"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginHorizontal="7dp"
+                        android:background="@drawable/btn_secondary"
+                        android:text="Confort"
+                        android:textColor="@color/txt"
+                        android:textAllCaps="false"
+                        android:textSize="14sp"
+                        android:paddingVertical="12dp" />
+
+                    <Button
+                        android:id="@+id/btn_buf_maxi"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="7dp"
+                        android:background="@drawable/btn_secondary"
+                        android:text="Maxi"
+                        android:textColor="@color/txt"
+                        android:textAllCaps="false"
+                        android:textSize="14sp"
+                        android:paddingVertical="12dp" />
+                </LinearLayout>
+            </LinearLayout>
         </LinearLayout>
-        </LinearLayout>
-    </LinearLayout>
-</ScrollView>
+    </ScrollView>
+</LinearLayout>
