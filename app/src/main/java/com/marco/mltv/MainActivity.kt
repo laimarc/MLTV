@@ -459,12 +459,18 @@ class MainActivity : AppCompatActivity() {
         if (idx < 0) return
         val lm = rvChannels.layoutManager as LinearLayoutManager
         lm.scrollToPositionWithOffset(idx, rvChannels.height / 3)
-        rvChannels.post {
-            rvChannels.findViewHolderForAdapterPosition(idx)?.itemView?.requestFocus()
-                ?: rvChannels.postDelayed({
-                    rvChannels.findViewHolderForAdapterPosition(idx)?.itemView?.requestFocus()
-                }, 120)
+        tryFocusChannel(idx, 0)
+    }
+
+    private fun tryFocusChannel(idx: Int, attempt: Int) {
+        val vh = rvChannels.findViewHolderForAdapterPosition(idx)
+        if (vh != null && vh.itemView.requestFocus()) return
+        if (attempt >= 8) return
+        if (vh == null) {
+            (rvChannels.layoutManager as LinearLayoutManager)
+                .scrollToPositionWithOffset(idx, rvChannels.height / 3)
         }
+        rvChannels.postDelayed({ tryFocusChannel(idx, attempt + 1) }, 80)
     }
 
     override fun onStop() {
