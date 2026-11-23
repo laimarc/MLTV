@@ -42,9 +42,19 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:layout_marginBottom="28dp"
-            android:text="Ajoute une source pour commencer"
+            android:text="Paramètres"
             android:textColor="@color/muted"
             android:textSize="15sp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:text="Liste de lecture (source)"
+            android:textColor="@color/txt"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:gravity="center" />
 
         <LinearLayout
             android:layout_width="match_parent"

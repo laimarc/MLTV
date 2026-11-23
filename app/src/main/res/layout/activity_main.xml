@@ -88,10 +88,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@drawable/btn_secondary"
-                android:text="Sources"
+                android:text="⚙"
                 android:textColor="@color/txt"
-                android:textAllCaps="false"
-                android:textSize="12sp"
+                android:textSize="15sp"
                 android:minWidth="0dp"
                 android:paddingHorizontal="9dp" />
         </LinearLayout>
