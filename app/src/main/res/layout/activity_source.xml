@@ -259,6 +259,19 @@
                     android:textColor="@color/muted"
                     android:textSize="12sp"
                     android:gravity="center" />
+
+                <Button
+                    android:id="@+id/btn_diag"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="24dp"
+                    android:background="@drawable/btn_secondary"
+                    android:text="Diagnostic rattrapage"
+                    android:textColor="@color/txt"
+                    android:textAllCaps="false"
+                    android:textSize="14sp"
+                    android:paddingHorizontal="20dp"
+                    android:paddingVertical="10dp" />
             </LinearLayout>
 
             <!-- Section TAMPON -->

@@ -7,8 +7,13 @@ import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import java.net.HttpURLConnection
+import java.net.URL
+import java.net.URLEncoder
 
 class SourceActivity : AppCompatActivity() {
 
@@ -60,6 +65,9 @@ class SourceActivity : AppCompatActivity() {
             }
         }
 
+        // ---- Diagnostic rattrapage ----
+        findViewById<Button>(R.id.btn_diag).setOnClickListener { runCatchupDiag() }
+
         // ---- Fluidité (mémoire tampon) ----
         val bEq = findViewById<Button>(R.id.btn_buf_equilibre)
         val bCo = findViewById<Button>(R.id.btn_buf_confort)
@@ -105,6 +113,63 @@ class SourceActivity : AppCompatActivity() {
     private fun goMain() {
         startActivity(Intent(this, MainActivity::class.java))
         finish()
+    }
+
+    /** Récupère la playlist M3U et affiche la 1re ligne de chaîne contenant « catchup »,
+     *  plus un exemple de ligne et d'URL de flux, pour connaître le format de rattrapage. */
+    private fun runCatchupDiag() {
+        val host = Store.host(this).trimEnd('/')
+        val u = Store.user(this)
+        val p = Store.pass(this)
+        if (host.isEmpty() || u.isEmpty() || p.isEmpty()) {
+            Toast.makeText(this, "Connecte-toi d'abord en Xtream.", Toast.LENGTH_SHORT).show()
+            return
+        }
+        Toast.makeText(this, "Recherche dans la playlist…", Toast.LENGTH_SHORT).show()
+        Thread {
+            val msg = try {
+                val url = "$host/get.php?username=${URLEncoder.encode(u, "UTF-8")}" +
+                    "&password=${URLEncoder.encode(p, "UTF-8")}&type=m3u_plus&output=ts"
+                val conn = (URL(url).openConnection() as HttpURLConnection).apply {
+                    setRequestProperty("User-Agent", "VLC/3.0.20 LibVLC/3.0.20")
+                    connectTimeout = 15000
+                    readTimeout = 25000
+                }
+                conn.inputStream.bufferedReader().use { br ->
+                    var line: String?
+                    var count = 0
+                    var sampleExtinf: String? = null
+                    var sampleUrl: String? = null
+                    var catchLine: String? = null
+                    while (br.readLine().also { line = it } != null) {
+                        val l = line ?: continue
+                        if (l.startsWith("#EXTINF")) {
+                            if (sampleExtinf == null) sampleExtinf = l
+                            if (catchLine == null && l.contains("catchup", ignoreCase = true)) catchLine = l
+                        } else if (l.startsWith("http") && sampleUrl == null) {
+                            sampleUrl = l
+                        }
+                        if (catchLine != null && sampleUrl != null) break
+                        if (++count > 400000) break
+                    }
+                    when {
+                        catchLine != null -> "LIGNE CATCHUP TROUVÉE :\n\n$catchLine"
+                        else -> "Aucun 'catchup-source' dans la playlist.\n\n" +
+                            "Exemple de chaîne :\n${sampleExtinf ?: "(aucune)"}\n\n" +
+                            "Exemple d'URL de flux :\n${sampleUrl ?: "(aucune)"}"
+                    }
+                }
+            } catch (e: Exception) {
+                "Erreur : ${e.message}"
+            }
+            runOnUiThread {
+                AlertDialog.Builder(this)
+                    .setTitle("Diagnostic rattrapage")
+                    .setMessage(msg)
+                    .setPositiveButton("OK", null)
+                    .show()
+            }
+        }.start()
     }
 
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
