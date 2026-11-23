@@ -57,7 +57,7 @@ class ManageAdapter(
 
         if (r.key == movingKey) {
             holder.itemView.setBackgroundResource(R.drawable.btn_accent)
-            holder.label.setTextColor(ContextCompat.getColor(ctx, R.color.accent_text))
+            holder.label.setTextColor(Theme.onAccent(ctx))
         } else {
             holder.itemView.setBackgroundResource(R.drawable.item_bg)
             holder.label.setTextColor(ContextCompat.getColor(ctx, R.color.txt))

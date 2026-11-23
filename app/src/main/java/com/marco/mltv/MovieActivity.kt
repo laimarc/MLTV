@@ -35,6 +35,7 @@ class MovieActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Theme.apply(this)
         setContentView(R.layout.activity_grid)
 
         findViewById<TextView>(R.id.tv_header).text = "Films"

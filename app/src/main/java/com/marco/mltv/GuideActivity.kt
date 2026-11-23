@@ -42,6 +42,7 @@ class GuideActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Theme.apply(this)
         setContentView(R.layout.activity_guide)
 
         rvChannels = findViewById(R.id.rv_channels)

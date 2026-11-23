@@ -4,5 +4,7 @@
         <item name="android:windowBackground">@color/bg</item>
         <item name="android:statusBarColor">@color/bg</item>
         <item name="android:colorBackground">@color/bg</item>
+        <item name="accentColor">#FFFF7A18</item>
+        <item name="accentText">#FF1A1200</item>
     </style>
 </resources>

@@ -174,6 +174,12 @@ object Store {
         prefs(c).edit().remove("pos:" + url).apply()
     }
 
+    // ---- Thème de couleur (accent) ----
+    fun theme(c: Context): String = prefs(c).getString("theme", "orange") ?: "orange"
+    fun setTheme(c: Context, key: String) {
+        prefs(c).edit().putString("theme", key).apply()
+    }
+
     // ---- Fluidité (mémoire tampon) : "equilibre" | "confort" | "maxi" ----
     fun bufferMode(c: Context): String = prefs(c).getString("bufMode", "confort") ?: "confort"
     fun setBufferMode(c: Context, mode: String) {

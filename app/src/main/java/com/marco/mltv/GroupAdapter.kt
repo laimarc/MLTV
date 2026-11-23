@@ -66,7 +66,7 @@ class GroupAdapter(
         val ctx = holder.itemView.context
         if (g == movingKey) {
             holder.tv.setBackgroundResource(R.drawable.btn_accent)
-            holder.tv.setTextColor(ContextCompat.getColor(ctx, R.color.accent_text))
+            holder.tv.setTextColor(Theme.onAccent(ctx))
             holder.tv.isSelected = false
         } else {
             holder.tv.setBackgroundResource(R.drawable.item_bg)

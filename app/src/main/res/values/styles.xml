@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Surcouches de couleur (thèmes) appliquées au démarrage de chaque écran -->
+    <style name="Accent.Orange">
+        <item name="accentColor">#FFFF7A18</item>
+        <item name="accentText">#FF1A1200</item>
+    </style>
+    <style name="Accent.Bleu">
+        <item name="accentColor">#FF3B82F6</item>
+        <item name="accentText">#FFFFFFFF</item>
+    </style>
+    <style name="Accent.Vert">
+        <item name="accentColor">#FF22B85C</item>
+        <item name="accentText">#FF04210F</item>
+    </style>
+    <style name="Accent.Rouge">
+        <item name="accentColor">#FFE4484B</item>
+        <item name="accentText">#FFFFFFFF</item>
+    </style>
+    <style name="Accent.Violet">
+        <item name="accentColor">#FF8B5CF6</item>
+        <item name="accentText">#FFFFFFFF</item>
+    </style>
+    <style name="Accent.Cyan">
+        <item name="accentColor">#FF22B8CF</item>
+        <item name="accentText">#FF052A31</item>
+    </style>
+    <style name="Accent.Rose">
+        <item name="accentColor">#FFEC4899</item>
+        <item name="accentText">#FFFFFFFF</item>
+    </style>
+    <style name="Accent.Jaune">
+        <item name="accentColor">#FFF5C518</item>
+        <item name="accentText">#FF2A2100</item>
+    </style>
+</resources>

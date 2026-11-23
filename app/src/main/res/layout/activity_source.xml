@@ -24,7 +24,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/app_name"
-                android:textColor="@color/accent"
+                android:textColor="?attr/accentColor"
                 android:textSize="30sp"
                 android:textStyle="bold" />
 
@@ -53,7 +53,7 @@
             android:layout_marginBottom="10dp"
             android:background="@drawable/btn_accent"
             android:text="Liste de lecture (source)"
-            android:textColor="@color/accent_text"
+            android:textColor="?attr/accentText"
             android:textAllCaps="false"
             android:textStyle="bold"
             android:textSize="15sp"
@@ -65,8 +65,22 @@
             android:id="@+id/btn_tab_buffer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
             android:background="@drawable/btn_secondary"
             android:text="Réglage tampon"
+            android:textColor="@color/txt"
+            android:textAllCaps="false"
+            android:textSize="15sp"
+            android:gravity="start|center_vertical"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="14dp" />
+
+        <Button
+            android:id="@+id/btn_tab_theme"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/btn_secondary"
+            android:text="Thème (couleur)"
             android:textColor="@color/txt"
             android:textAllCaps="false"
             android:textSize="15sp"
@@ -235,7 +249,7 @@
                             android:layout_marginTop="16dp"
                             android:background="@drawable/btn_accent"
                             android:text="Se connecter"
-                            android:textColor="@color/accent_text"
+                            android:textColor="?attr/accentText"
                             android:textAllCaps="false"
                             android:textStyle="bold"
                             android:textSize="16sp" />
@@ -332,6 +346,38 @@
                         android:textSize="14sp"
                         android:paddingVertical="12dp" />
                 </LinearLayout>
+            </LinearLayout>
+
+            <!-- Section THÈME -->
+            <LinearLayout
+                android:id="@+id/sec_theme"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Thème (couleur d'accent)"
+                    android:textColor="@color/txt"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:layout_marginBottom="18dp"
+                    android:text="Remplace l'orange par la couleur de ton choix (boutons, cadre de sélection, surlignages…)."
+                    android:textColor="@color/muted"
+                    android:textSize="13sp" />
+
+                <LinearLayout
+                    android:id="@+id/theme_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
             </LinearLayout>
         </LinearLayout>
     </ScrollView>

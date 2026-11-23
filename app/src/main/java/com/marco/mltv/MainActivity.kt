@@ -75,6 +75,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Theme.apply(this)
         setContentView(R.layout.activity_main)
 
         playerView = findViewById(R.id.player_view)

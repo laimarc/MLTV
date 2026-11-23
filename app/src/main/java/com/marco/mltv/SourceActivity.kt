@@ -14,6 +14,7 @@ class SourceActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Theme.apply(this)
 
         // Déjà configuré et lancement normal -> aller directement au lecteur
         val editing = intent.getBooleanExtra("edit", false)
@@ -69,7 +70,7 @@ class SourceActivity : AppCompatActivity() {
             for ((btn, mode) in listOf(bEq to "equilibre", bCo to "confort", bMx to "maxi")) {
                 if (mode == m) {
                     btn.setBackgroundResource(R.drawable.btn_accent)
-                    btn.setTextColor(ContextCompat.getColor(this, R.color.accent_text))
+                    btn.setTextColor(Theme.onAccent(this))
                 } else {
                     btn.setBackgroundResource(R.drawable.btn_secondary)
                     btn.setTextColor(ContextCompat.getColor(this, R.color.txt))
@@ -81,26 +82,82 @@ class SourceActivity : AppCompatActivity() {
         bMx.setOnClickListener { Store.setBufferMode(this, "maxi"); refreshBuf() }
         refreshBuf()
 
-        // ---- Onglets Source / Fluidité ----
+        // ---- Onglets Source / Fluidité / Thème ----
         val secSource = findViewById<View>(R.id.sec_source)
         val secBuffer = findViewById<View>(R.id.sec_buffer)
+        val secTheme = findViewById<View>(R.id.sec_theme)
         val tabSource = findViewById<Button>(R.id.btn_tab_source)
         val tabBuffer = findViewById<Button>(R.id.btn_tab_buffer)
-        fun showTab(source: Boolean) {
-            secSource.visibility = if (source) View.VISIBLE else View.GONE
-            secBuffer.visibility = if (source) View.GONE else View.VISIBLE
-            tabSource.setBackgroundResource(if (source) R.drawable.btn_accent else R.drawable.btn_secondary)
-            tabSource.setTextColor(ContextCompat.getColor(this, if (source) R.color.accent_text else R.color.txt))
-            tabBuffer.setBackgroundResource(if (source) R.drawable.btn_secondary else R.drawable.btn_accent)
-            tabBuffer.setTextColor(ContextCompat.getColor(this, if (source) R.color.txt else R.color.accent_text))
+        val tabTheme = findViewById<Button>(R.id.btn_tab_theme)
+        val tabs = listOf(tabSource to secSource, tabBuffer to secBuffer, tabTheme to secTheme)
+        fun showTab(active: View) {
+            for ((tab, sec) in tabs) {
+                val on = tab === active
+                sec.visibility = if (on) View.VISIBLE else View.GONE
+                tab.setBackgroundResource(if (on) R.drawable.btn_accent else R.drawable.btn_secondary)
+                tab.setTextColor(if (on) Theme.onAccent(this) else ContextCompat.getColor(this, R.color.txt))
+            }
         }
-        tabSource.setOnClickListener { showTab(true) }
-        tabBuffer.setOnClickListener { showTab(false) }
-        showTab(true)
+        tabSource.setOnClickListener { showTab(tabSource) }
+        tabBuffer.setOnClickListener { showTab(tabBuffer) }
+        tabTheme.setOnClickListener { showTab(tabTheme) }
+        if (openThemeTab) { openThemeTab = false; showTab(tabTheme) } else showTab(tabSource)
+
+        // ---- Pastilles de couleur (thème) ----
+        buildThemeSwatches(findViewById(R.id.theme_container))
 
         // ---- Version ----
         findViewById<TextView>(R.id.tv_version).text = "MLTV  v${BuildConfig.VERSION_NAME}"
     }
+
+    private fun buildThemeSwatches(container: android.widget.LinearLayout) {
+        container.removeAllViews()
+        val cur = Store.theme(this)
+        val dp = resources.displayMetrics.density
+        for (opt in Theme.options) {
+            val row = android.widget.LinearLayout(this).apply {
+                orientation = android.widget.LinearLayout.HORIZONTAL
+                gravity = android.view.Gravity.CENTER_VERTICAL
+                isFocusable = true
+                isClickable = true
+                setBackgroundResource(R.drawable.item_bg)
+                setPadding((14 * dp).toInt(), (12 * dp).toInt(), (14 * dp).toInt(), (12 * dp).toInt())
+                layoutParams = android.widget.LinearLayout.LayoutParams(
+                    android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
+                    android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
+                ).apply { bottomMargin = (8 * dp).toInt() }
+            }
+            val dot = View(this).apply {
+                val d = android.graphics.drawable.GradientDrawable().apply {
+                    shape = android.graphics.drawable.GradientDrawable.OVAL
+                    setColor(opt.color)
+                }
+                background = d
+                layoutParams = android.widget.LinearLayout.LayoutParams((26 * dp).toInt(), (26 * dp).toInt())
+            }
+            val label = TextView(this).apply {
+                text = opt.label + if (opt.key == cur) "   ✓" else ""
+                setTextColor(ContextCompat.getColor(this@SourceActivity, R.color.txt))
+                textSize = 16f
+                val lp = android.widget.LinearLayout.LayoutParams(0,
+                    android.widget.LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+                lp.leftMargin = (14 * dp).toInt()
+                layoutParams = lp
+            }
+            row.addView(dot)
+            row.addView(label)
+            row.setOnClickListener {
+                if (Store.theme(this) != opt.key) {
+                    Store.setTheme(this, opt.key)
+                    openThemeTab = true
+                    recreate()
+                }
+            }
+            container.addView(row)
+        }
+    }
+
+    companion object { private var openThemeTab = false }
 
     private fun goMain() {
         startActivity(Intent(this, MainActivity::class.java))

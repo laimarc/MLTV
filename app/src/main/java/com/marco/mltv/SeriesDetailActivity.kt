@@ -26,6 +26,7 @@ class SeriesDetailActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Theme.apply(this)
         setContentView(R.layout.activity_series_detail)
 
         val seriesId = intent.getIntExtra("seriesId", -1)

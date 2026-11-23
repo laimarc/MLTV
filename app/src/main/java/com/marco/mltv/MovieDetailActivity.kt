@@ -20,6 +20,7 @@ class MovieDetailActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Theme.apply(this)
         setContentView(R.layout.activity_movie_detail)
 
         val url = intent.getStringExtra("url") ?: ""
