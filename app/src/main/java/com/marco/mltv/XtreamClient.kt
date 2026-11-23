@@ -42,8 +42,7 @@ object XtreamClient {
         val base = host.trimEnd('/')
         val u = enc(user); val p = enc(pass)
         val start = catchupFmt.format(java.util.Date(startMillis))
-        return "$base/streaming/timeshift.php?username=$u&password=$p" +
-            "&stream=$streamId&start=$start&duration=$durationMin"
+        return "$base/timeshift/$u/$p/$durationMin/$start/$streamId.m3u8"
     }
 
     private val catchupFmt = java.text.SimpleDateFormat("yyyy-MM-dd:HH-mm", java.util.Locale.US)
