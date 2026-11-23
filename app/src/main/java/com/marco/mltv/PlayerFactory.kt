@@ -2,10 +2,13 @@ package com.marco.mltv
 
 import android.content.Context
 import androidx.media3.common.util.UnstableApi
+import androidx.media3.datasource.DefaultHttpDataSource
 import androidx.media3.exoplayer.DefaultLoadControl
 import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 
-/** Crée un ExoPlayer avec une mémoire tampon selon le réglage de fluidité. */
+/** Crée un ExoPlayer avec une mémoire tampon selon le réglage de fluidité,
+ *  et des délais réseau larges (le rattrapage/replay est souvent lent à démarrer). */
 @UnstableApi
 object PlayerFactory {
 
@@ -14,8 +17,16 @@ object PlayerFactory {
         val loadControl = DefaultLoadControl.Builder()
             .setBufferDurationsMs(minB, maxB, start, afterRebuf)
             .build()
+
+        val httpFactory = DefaultHttpDataSource.Factory()
+            .setConnectTimeoutMs(30000)
+            .setReadTimeoutMs(30000)
+            .setAllowCrossProtocolRedirects(true)
+        val mediaSourceFactory = DefaultMediaSourceFactory(httpFactory)
+
         return ExoPlayer.Builder(c)
             .setLoadControl(loadControl)
+            .setMediaSourceFactory(mediaSourceFactory)
             .build()
     }
 
