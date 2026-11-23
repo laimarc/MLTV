@@ -55,12 +55,7 @@ class PlayerActivity : AppCompatActivity() {
         p.addListener(object : Player.Listener {
             override fun onPlayerError(error: PlaybackException) {
                 if (!live) {
-                    val cause = error.cause?.message?.take(80) ?: ""
-                    Toast.makeText(
-                        this@PlayerActivity,
-                        "Lecture : ${error.errorCodeName}\n$cause",
-                        Toast.LENGTH_LONG
-                    ).show()
+                    Toast.makeText(this@PlayerActivity, "Lecture impossible", Toast.LENGTH_SHORT).show()
                 }
                 reconnect()
             }

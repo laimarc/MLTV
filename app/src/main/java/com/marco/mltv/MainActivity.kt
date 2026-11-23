@@ -441,9 +441,6 @@ class MainActivity : AppCompatActivity() {
         if (c.streamId < 0) return
         val dur = ((prog.stop - prog.start) / 60000L).toInt().coerceAtLeast(1)
         val url = XtreamClient.catchupUrl(Store.host(this), Store.user(this), Store.pass(this), c.streamId, prog.start, dur)
-        // DIAGNOSTIC : montre l'heure de début calculée + flux + durée (sans mot de passe)
-        val startStr = java.text.SimpleDateFormat("yyyy-MM-dd:HH-mm", java.util.Locale.US).format(java.util.Date(prog.start))
-        Toast.makeText(this, "replay stream=${c.streamId}  start=$startStr  dur=${dur}min", Toast.LENGTH_LONG).show()
         startActivity(
             Intent(this, PlayerActivity::class.java)
                 .putExtra("url", url)
