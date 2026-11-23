@@ -46,6 +46,44 @@
             android:textColor="@color/muted"
             android:textSize="15sp" />
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="22dp">
+
+            <Button
+                android:id="@+id/btn_tab_source"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="7dp"
+                android:background="@drawable/btn_accent"
+                android:text="Source"
+                android:textColor="@color/accent_text"
+                android:textAllCaps="false"
+                android:textStyle="bold"
+                android:textSize="15sp" />
+
+            <Button
+                android:id="@+id/btn_tab_buffer"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="7dp"
+                android:background="@drawable/btn_secondary"
+                android:text="Fluidité (tampon)"
+                android:textColor="@color/txt"
+                android:textAllCaps="false"
+                android:textSize="15sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/sec_source"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -202,11 +240,27 @@
             android:textSize="14sp"
             android:gravity="center" />
 
-        <!-- Fluidité (mémoire tampon) -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="28dp"
+            android:layout_marginTop="20dp"
+            android:text="Les identifiants restent sur l'appareil."
+            android:textColor="@color/muted"
+            android:textSize="12sp"
+            android:gravity="center" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/sec_buffer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
             android:text="Fluidité (mémoire tampon)"
             android:textColor="@color/txt"
             android:textSize="16sp"
@@ -265,14 +319,6 @@
                 android:textAllCaps="false"
                 android:textSize="14sp" />
         </LinearLayout>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="28dp"
-            android:text="Les identifiants restent sur l'appareil."
-            android:textColor="@color/muted"
-            android:textSize="12sp"
-            android:gravity="center" />
+        </LinearLayout>
     </LinearLayout>
 </ScrollView>

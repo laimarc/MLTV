@@ -2,6 +2,7 @@ package com.marco.mltv
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
@@ -78,6 +79,23 @@ class SourceActivity : AppCompatActivity() {
         bCo.setOnClickListener { Store.setBufferMode(this, "confort"); refreshBuf() }
         bMx.setOnClickListener { Store.setBufferMode(this, "maxi"); refreshBuf() }
         refreshBuf()
+
+        // ---- Onglets Source / Fluidité ----
+        val secSource = findViewById<View>(R.id.sec_source)
+        val secBuffer = findViewById<View>(R.id.sec_buffer)
+        val tabSource = findViewById<Button>(R.id.btn_tab_source)
+        val tabBuffer = findViewById<Button>(R.id.btn_tab_buffer)
+        fun showTab(source: Boolean) {
+            secSource.visibility = if (source) View.VISIBLE else View.GONE
+            secBuffer.visibility = if (source) View.GONE else View.VISIBLE
+            tabSource.setBackgroundResource(if (source) R.drawable.btn_accent else R.drawable.btn_secondary)
+            tabSource.setTextColor(ContextCompat.getColor(this, if (source) R.color.accent_text else R.color.txt))
+            tabBuffer.setBackgroundResource(if (source) R.drawable.btn_secondary else R.drawable.btn_accent)
+            tabBuffer.setTextColor(ContextCompat.getColor(this, if (source) R.color.txt else R.color.accent_text))
+        }
+        tabSource.setOnClickListener { showTab(true) }
+        tabBuffer.setOnClickListener { showTab(false) }
+        showTab(true)
 
         // ---- Version ----
         findViewById<TextView>(R.id.tv_version).text = "MLTV  v${BuildConfig.VERSION_NAME}"
