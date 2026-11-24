@@ -51,7 +51,7 @@ class EpgProgAdapter(
 
         holder.title.text = if (replayable) "⟲ ${p.title}" else p.title
 
-        val accent = 0xFFFF7A18.toInt()
+        val accent = Theme.accent(holder.itemView.context)
         val txt = 0xFFE6EDF3.toInt()
         val muted = 0xFF8B98A9.toInt()
         holder.title.setTextColor(if (isNow) accent else txt)
