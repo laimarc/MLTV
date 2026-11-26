@@ -174,6 +174,14 @@ object Store {
         prefs(c).edit().remove("pos:" + url).apply()
     }
 
+    // ---- Style d'interface : "mltv" (accueil 3 colonnes) | "tivimate" ----
+    fun uiStyle(c: Context): String = prefs(c).getString("uiStyle", "mltv") ?: "mltv"
+    fun setUiStyle(c: Context, v: String) { prefs(c).edit().putString("uiStyle", v).apply() }
+
+    // ---- Transparence des panneaux (style TiViMate), 40–100 (% d'opacité) ----
+    fun panelAlpha(c: Context): Int = prefs(c).getInt("panelAlpha", 88)
+    fun setPanelAlpha(c: Context, v: Int) { prefs(c).edit().putInt("panelAlpha", v).apply() }
+
     // ---- Thème de couleur (accent) ----
     fun theme(c: Context): String = prefs(c).getString("theme", "orange") ?: "orange"
     fun setTheme(c: Context, key: String) {

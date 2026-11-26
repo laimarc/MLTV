@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FF000000">
+
+    <!-- Vidéo plein écran au fond -->
+    <androidx.media3.ui.PlayerView
+        android:id="@+id/player_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:use_controller="false"
+        app:resize_mode="fit" />
+
+    <!-- Voile sombre léger pour la lisibilité -->
+    <View
+        android:id="@+id/scrim"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#55000000" />
+
+    <!-- Interface par-dessus -->
+    <LinearLayout
+        android:id="@+id/overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+
+        <!-- Menu vertical -->
+        <LinearLayout
+            android:id="@+id/nav_panel"
+            android:layout_width="196dp"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="14dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="MLTV"
+                android:textColor="?attr/accentColor"
+                android:textStyle="bold"
+                android:textSize="22sp"
+                android:layout_marginBottom="18dp"
+                android:layout_marginStart="6dp" />
+
+            <TextView android:id="@+id/nav_search" style="@style/TiviNav" android:text="Recherche" />
+            <TextView android:id="@+id/nav_tv" style="@style/TiviNav" android:text="TV" />
+            <TextView android:id="@+id/nav_films" style="@style/TiviNav" android:text="Films" />
+            <TextView android:id="@+id/nav_series" style="@style/TiviNav" android:text="Séries" />
+            <TextView android:id="@+id/nav_list" style="@style/TiviNav" android:text="Ma liste" />
+            <TextView android:id="@+id/nav_settings" style="@style/TiviNav" android:text="Paramètres" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/tv_clock"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/muted"
+                android:textSize="12sp"
+                android:layout_marginStart="6dp" />
+        </LinearLayout>
+
+        <!-- Catégories -->
+        <LinearLayout
+            android:id="@+id/cat_panel"
+            android:layout_width="236dp"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:paddingVertical="12dp">
+
+            <EditText
+                android:id="@+id/et_search"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="12dp"
+                android:layout_marginBottom="8dp"
+                android:background="@drawable/field_bg"
+                android:padding="10dp"
+                android:hint="Rechercher…"
+                android:textColorHint="@color/muted"
+                android:textColor="@color/txt"
+                android:textSize="14sp"
+                android:inputType="text"
+                android:imeOptions="actionSearch"
+                android:visibility="gone" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_cats"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+        </LinearLayout>
+
+        <!-- Grille EPG -->
+        <LinearLayout
+            android:id="@+id/grid_panel"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_grid_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="14dp"
+                android:paddingTop="12dp"
+                android:paddingBottom="6dp"
+                android:textColor="@color/txt"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:maxLines="1"
+                android:ellipsize="end" />
+
+            <!-- Frise horaire -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingBottom="4dp">
+
+                <View
+                    android:layout_width="300dp"
+                    android:layout_height="1dp" />
+
+                <LinearLayout
+                    android:id="@+id/ruler_cells"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="horizontal" />
+            </LinearLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_grid"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+        </LinearLayout>
+    </LinearLayout>
+</FrameLayout>

@@ -106,6 +106,9 @@ class SourceActivity : AppCompatActivity() {
         // ---- Pastilles de couleur (thème) ----
         buildThemeSwatches(findViewById(R.id.theme_container))
 
+        // ---- Style d'interface + transparence ----
+        wireDisplayOptions()
+
         // ---- Version ----
         findViewById<TextView>(R.id.tv_version).text = "MLTV  v${BuildConfig.VERSION_NAME}"
     }
@@ -155,6 +158,39 @@ class SourceActivity : AppCompatActivity() {
             }
             container.addView(row)
         }
+    }
+
+    private fun wireDisplayOptions() {
+        val sMltv = findViewById<Button>(R.id.btn_style_mltv)
+        val sTivi = findViewById<Button>(R.id.btn_style_tivi)
+        fun refreshStyle() {
+            val tivi = Store.uiStyle(this) == "tivimate"
+            sMltv.setBackgroundResource(if (!tivi) R.drawable.btn_accent else R.drawable.btn_secondary)
+            sMltv.setTextColor(if (!tivi) Theme.onAccent(this) else ContextCompat.getColor(this, R.color.txt))
+            sTivi.setBackgroundResource(if (tivi) R.drawable.btn_accent else R.drawable.btn_secondary)
+            sTivi.setTextColor(if (tivi) Theme.onAccent(this) else ContextCompat.getColor(this, R.color.txt))
+        }
+        sMltv.setOnClickListener { Store.setUiStyle(this, "mltv"); refreshStyle() }
+        sTivi.setOnClickListener { Store.setUiStyle(this, "tivimate"); refreshStyle() }
+        refreshStyle()
+
+        val levels = listOf(
+            R.id.btn_tr_60 to 60, R.id.btn_tr_78 to 78,
+            R.id.btn_tr_92 to 92, R.id.btn_tr_100 to 100
+        )
+        fun refreshTr() {
+            val cur = Store.panelAlpha(this)
+            for ((id, v) in levels) {
+                val b = findViewById<Button>(id)
+                val on = cur == v
+                b.setBackgroundResource(if (on) R.drawable.btn_accent else R.drawable.btn_secondary)
+                b.setTextColor(if (on) Theme.onAccent(this) else ContextCompat.getColor(this, R.color.txt))
+            }
+        }
+        for ((id, v) in levels) {
+            findViewById<Button>(id).setOnClickListener { Store.setPanelAlpha(this, v); refreshTr() }
+        }
+        refreshTr()
     }
 
     companion object { private var openThemeTab = false }
