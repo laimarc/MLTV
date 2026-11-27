@@ -524,12 +524,6 @@ class MainActivity : AppCompatActivity() {
     private fun focusCurrentChannel() {
         val target = curUrl
         val idx = currentFiltered().indexOfFirst { it.url == target }
-        // DIAGNOSTIC temporaire (toast visible)
-        Toast.makeText(
-            this,
-            "retour  cur=${if (target.isEmpty()) "VIDE" else target.takeLast(6)}  idx=$idx",
-            Toast.LENGTH_LONG
-        ).show()
         if (idx < 0) return
         val lm = rvChannels.layoutManager as LinearLayoutManager
         lm.scrollToPositionWithOffset(idx, rvChannels.height / 3)
