@@ -16,11 +16,15 @@ object Updater {
     fun checkAsync(activity: Activity) {
         Thread {
             try {
-                val json = JSONObject(Http.get(VERSION_URL))
+                // paramètre anti-cache : force le CDN GitHub Pages à renvoyer la dernière version
+                val json = JSONObject(Http.get("$VERSION_URL?t=${System.currentTimeMillis()}", noCache = true))
                 val remote = json.optInt("versionCode", 0)
-                val url = json.optString("url", "")
+                var url = json.optString("url", "")
                 if (remote > BuildConfig.VERSION_CODE && url.isNotEmpty()) {
-                    activity.runOnUiThread { prompt(activity, url) }
+                    // anti-cache aussi sur l'APK pour ne pas récupérer l'ancienne
+                    url += if (url.contains("?")) "&t=${System.currentTimeMillis()}" else "?t=${System.currentTimeMillis()}"
+                    val finalUrl = url
+                    activity.runOnUiThread { prompt(activity, finalUrl) }
                 }
             } catch (_: Exception) {
                 // pas de réseau / pas de version : on ignore
