@@ -208,9 +208,22 @@ class MainActivity : AppCompatActivity() {
                     allChannels = list
                     buildGroups()
                     render()
-                    val first = currentFiltered().firstOrNull()
-                    if (first != null) play(first)
-                    rvChannels.requestFocus()
+                    // restaure la dernière chaîne regardée (survit à la recréation de l'activité),
+                    // sinon la première de la liste
+                    val saved = Store.lastChannel(this)
+                    val savedCh = if (saved.isNotEmpty()) allChannels.firstOrNull { it.url == saved } else null
+                    if (savedCh != null) {
+                        // si la chaîne n'est pas dans le groupe courant, bascule sur « Tout »
+                        if (currentFiltered().none { it.url == saved }) {
+                            curGroup = "Tout"
+                            render()
+                        }
+                        play(savedCh)
+                        rvChannels.postDelayed({ focusCurrentChannel() }, 250)
+                    } else {
+                        currentFiltered().firstOrNull()?.let { play(it) }
+                        rvChannels.requestFocus()
+                    }
                     loadEpg()
                 }
             } catch (e: Exception) {
@@ -401,6 +414,7 @@ class MainActivity : AppCompatActivity() {
         curStreamId = c.streamId
         curArchive = c.archive
         curUrl = c.url
+        Store.setLastChannel(this, c.url)
         p.setMediaItem(MediaItem.fromUri(c.url))
         p.prepare()
         p.playWhenReady = true
@@ -468,7 +482,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        val dbg = StringBuilder("RESUME all=${allChannels.size} cur=${if (curUrl.isEmpty()) "VIDE" else curUrl.takeLast(5)}")
         if (allChannels.isNotEmpty()) {
             buildGroups()
             render()
@@ -484,10 +497,8 @@ class MainActivity : AppCompatActivity() {
             if (curUrl.isNotEmpty()) {
                 focusCurrentPending = true
                 rvChannels.postDelayed({ runPendingFocus() }, 250)
-                dbg.append(" -> POST")
-            } else dbg.append(" -> curVIDE")
-        } else dbg.append(" -> allVIDE")
-        Toast.makeText(this, dbg.toString(), Toast.LENGTH_LONG).show()
+            }
+        }
         // reprend le direct au retour du plein écran
         if (curUrl.isNotEmpty()) player?.playWhenReady = true
     }

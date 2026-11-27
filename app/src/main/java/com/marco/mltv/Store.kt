@@ -35,6 +35,12 @@ object Store {
     fun user(c: Context): String = prefs(c).getString("user", "") ?: ""
     fun pass(c: Context): String = prefs(c).getString("pass", "") ?: ""
 
+    // Dernière chaîne regardée (persistée, survit à la recréation de l'activité)
+    fun lastChannel(c: Context): String = prefs(c).getString("lastCh", "") ?: ""
+    fun setLastChannel(c: Context, url: String) {
+        prefs(c).edit().putString("lastCh", url).apply()
+    }
+
     // Favoris : ensemble d'URL
     fun favorites(c: Context): MutableSet<String> =
         HashSet(prefs(c).getStringSet("favs", emptySet()) ?: emptySet())
