@@ -512,8 +512,14 @@ class MainActivity : AppCompatActivity() {
     private fun focusCurrentChannel() {
         val target = restoreUrl.ifEmpty { focusTargetUrl() }
         val idx = currentFiltered().indexOfFirst { it.url == target }
-        // DIAGNOSTIC temporaire
-        status.text = "DBG tgt=${if (target.isEmpty()) "VIDE" else target.takeLast(8)} idx=$idx grp=$curGroup"
+        // DIAGNOSTIC temporaire (toast visible)
+        Toast.makeText(
+            this,
+            "retour  tgt=${if (target.isEmpty()) "VIDE" else target.takeLast(6)}" +
+                "  last=${if (lastFocusedUrl.isEmpty()) "VIDE" else lastFocusedUrl.takeLast(6)}" +
+                "  idx=$idx",
+            Toast.LENGTH_LONG
+        ).show()
         if (idx < 0) return
         val lm = rvChannels.layoutManager as LinearLayoutManager
         lm.scrollToPositionWithOffset(idx, rvChannels.height / 3)
