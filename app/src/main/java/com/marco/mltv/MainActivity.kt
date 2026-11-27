@@ -468,6 +468,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        val dbg = StringBuilder("RESUME all=${allChannels.size} cur=${if (curUrl.isEmpty()) "VIDE" else curUrl.takeLast(5)}")
         if (allChannels.isNotEmpty()) {
             buildGroups()
             render()
@@ -483,8 +484,10 @@ class MainActivity : AppCompatActivity() {
             if (curUrl.isNotEmpty()) {
                 focusCurrentPending = true
                 rvChannels.postDelayed({ runPendingFocus() }, 250)
-            }
-        }
+                dbg.append(" -> POST")
+            } else dbg.append(" -> curVIDE")
+        } else dbg.append(" -> allVIDE")
+        Toast.makeText(this, dbg.toString(), Toast.LENGTH_LONG).show()
         // reprend le direct au retour du plein écran
         if (curUrl.isNotEmpty()) player?.playWhenReady = true
     }
