@@ -68,6 +68,10 @@ class MainActivity : AppCompatActivity() {
     private var curStreamId: Int = -1
     private var curArchive: Boolean = false
     private var curUrl: String = ""
+    // dernière chaîne où se trouvait le cadre (focus), lancée ou non
+    private var lastFocusedUrl: String = ""
+    // cible figée au départ de l'écran, pour la restauration au retour
+    private var restoreUrl: String = ""
     private var search: String = ""
     private var movingCat: String? = null
 
@@ -180,7 +184,8 @@ class MainActivity : AppCompatActivity() {
                         .scrollToPositionWithOffset(target, rvChannels.height / 3)
                     tryFocusChannel(target, 0)
                 }
-            }
+            },
+            onFocus = { c -> lastFocusedUrl = c.url }
         )
         rvChannels.adapter = channelAdapter
 
@@ -477,8 +482,8 @@ class MainActivity : AppCompatActivity() {
             if (ls.isNotEmpty() && li in ls.indices && ls[li].url != curUrl) {
                 play(ls[li])
             }
-            // au retour (plein écran, Films, Séries…) : le cadre entoure la chaîne en cours
-            if (curUrl.isNotEmpty()) {
+            // au retour (plein écran, Films, Séries…) : le cadre revient sur la dernière chaîne sélectionnée
+            if (focusTargetUrl().isNotEmpty()) {
                 focusCurrentChannel()
                 // Android restaure le focus sur le bouton d'origine APRÈS onResume ;
                 // on redemande donc le focus une fois la fenêtre réellement active.
@@ -491,18 +496,22 @@ class MainActivity : AppCompatActivity() {
 
     private var focusCurrentPending = false
 
+    /** Chaîne à re-cibler au retour : celle où était le cadre, sinon celle en lecture. */
+    private fun focusTargetUrl(): String = lastFocusedUrl.ifEmpty { curUrl }
+
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
         if (hasFocus && focusCurrentPending) {
             focusCurrentPending = false
-            if (curUrl.isNotEmpty()) rvChannels.post { focusCurrentChannel() }
+            if (focusTargetUrl().isNotEmpty()) rvChannels.post { focusCurrentChannel() }
         }
     }
 
     private var focusAttachListener: RecyclerView.OnChildAttachStateChangeListener? = null
 
     private fun focusCurrentChannel() {
-        val idx = currentFiltered().indexOfFirst { it.url == curUrl }
+        val target = restoreUrl.ifEmpty { focusTargetUrl() }
+        val idx = currentFiltered().indexOfFirst { it.url == target }
         if (idx < 0) return
         val lm = rvChannels.layoutManager as LinearLayoutManager
         lm.scrollToPositionWithOffset(idx, rvChannels.height / 3)
@@ -545,6 +554,13 @@ class MainActivity : AppCompatActivity() {
                 .scrollToPositionWithOffset(idx, rvChannels.height / 3)
         }
         rvChannels.postDelayed({ tryFocusChannel(idx, attempt + 1) }, 70)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        // on fige la chaîne où est le cadre AVANT de partir (Films, Séries, plein écran) ;
+        // la reconstruction de la liste au retour ne doit pas écraser cette cible.
+        restoreUrl = focusTargetUrl()
     }
 
     override fun onStop() {

@@ -13,7 +13,8 @@ class ChannelAdapter(
     private val favUrls: () -> Set<String>,
     private val nowTitle: (String) -> String?,
     private val onClick: (Channel) -> Unit,
-    private val onLongClick: (Channel) -> Unit
+    private val onLongClick: (Channel) -> Unit,
+    private val onFocus: (Channel) -> Unit = {}
 ) : RecyclerView.Adapter<ChannelAdapter.VH>() {
 
     class VH(v: View) : RecyclerView.ViewHolder(v) {
@@ -55,6 +56,9 @@ class ChannelAdapter(
         holder.itemView.setOnLongClickListener {
             onLongClick(c)
             true
+        }
+        holder.itemView.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) onFocus(c)
         }
     }
 
