@@ -499,23 +499,52 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private var focusAttachListener: RecyclerView.OnChildAttachStateChangeListener? = null
+
     private fun focusCurrentChannel() {
         val idx = currentFiltered().indexOfFirst { it.url == curUrl }
         if (idx < 0) return
         val lm = rvChannels.layoutManager as LinearLayoutManager
         lm.scrollToPositionWithOffset(idx, rvChannels.height / 3)
+
+        // retire un éventuel écouteur précédent
+        focusAttachListener?.let { rvChannels.removeOnChildAttachStateChangeListener(it) }
+        focusAttachListener = null
+
+        // la vue est déjà présente → on pose le cadre tout de suite
+        val vh = rvChannels.findViewHolderForAdapterPosition(idx)
+        if (vh != null && vh.itemView.requestFocus()) return
+
+        // sinon on attend que la vue de la chaîne soit réellement attachée
+        val l = object : RecyclerView.OnChildAttachStateChangeListener {
+            override fun onChildViewAttachedToWindow(view: View) {
+                if (rvChannels.getChildAdapterPosition(view) == idx) {
+                    view.requestFocus()
+                    rvChannels.removeOnChildAttachStateChangeListener(this)
+                    if (focusAttachListener === this) focusAttachListener = null
+                }
+            }
+            override fun onChildViewDetachedFromWindow(view: View) {}
+        }
+        focusAttachListener = l
+        rvChannels.addOnChildAttachStateChangeListener(l)
+        // filet de sécurité temporel
         tryFocusChannel(idx, 0)
     }
 
     private fun tryFocusChannel(idx: Int, attempt: Int) {
         val vh = rvChannels.findViewHolderForAdapterPosition(idx)
-        if (vh != null && vh.itemView.requestFocus()) return
-        if (attempt >= 8) return
+        if (vh != null && vh.itemView.requestFocus()) {
+            focusAttachListener?.let { rvChannels.removeOnChildAttachStateChangeListener(it) }
+            focusAttachListener = null
+            return
+        }
+        if (attempt >= 15) return
         if (vh == null) {
             (rvChannels.layoutManager as LinearLayoutManager)
                 .scrollToPositionWithOffset(idx, rvChannels.height / 3)
         }
-        rvChannels.postDelayed({ tryFocusChannel(idx, attempt + 1) }, 80)
+        rvChannels.postDelayed({ tryFocusChannel(idx, attempt + 1) }, 70)
     }
 
     override fun onStop() {
