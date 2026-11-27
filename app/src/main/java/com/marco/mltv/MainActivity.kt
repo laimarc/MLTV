@@ -68,10 +68,6 @@ class MainActivity : AppCompatActivity() {
     private var curStreamId: Int = -1
     private var curArchive: Boolean = false
     private var curUrl: String = ""
-    // dernière chaîne où se trouvait le cadre (focus), lancée ou non
-    private var lastFocusedUrl: String = ""
-    // cible figée au départ de l'écran, pour la restauration au retour
-    private var restoreUrl: String = ""
     private var search: String = ""
     private var movingCat: String? = null
 
@@ -184,23 +180,9 @@ class MainActivity : AppCompatActivity() {
                         .scrollToPositionWithOffset(target, rvChannels.height / 3)
                     tryFocusChannel(target, 0)
                 }
-            },
-            onFocus = { c -> lastFocusedUrl = c.url }
+            }
         )
         rvChannels.adapter = channelAdapter
-
-        // Suivi fiable de la chaîne sous le cadre : observateur global de focus.
-        // (le setOnFocusChangeListener par ligne ne se déclenche pas sur cette box)
-        rvChannels.viewTreeObserver.addOnGlobalFocusChangeListener { _, newFocus ->
-            if (newFocus != null) {
-                val vh = rvChannels.findContainingViewHolder(newFocus)
-                val pos = vh?.adapterPosition ?: RecyclerView.NO_POSITION
-                if (pos != RecyclerView.NO_POSITION) {
-                    val list = currentFiltered()
-                    if (pos in list.indices) lastFocusedUrl = list[pos].url
-                }
-            }
-        }
 
         player = PlayerFactory.create(this)
         playerView.player = player
@@ -495,13 +477,10 @@ class MainActivity : AppCompatActivity() {
             if (ls.isNotEmpty() && li in ls.indices && ls[li].url != curUrl) {
                 play(ls[li])
             }
-            // au retour (plein écran, Films, Séries…) : le cadre revient sur la dernière chaîne sélectionnée
-            if (focusTargetUrl().isNotEmpty()) {
-                focusCurrentChannel()
-                // Android restaure le focus sur le bouton d'origine APRÈS onResume ;
-                // on redemande donc le focus une fois la fenêtre réellement active.
-                focusCurrentPending = true
-            }
+            // au retour (plein écran, Films, Séries…) : le cadre revient sur la chaîne en lecture.
+            // Android pose son focus auto (chaîne 1) APRÈS onResume ; on réapplique donc
+            // notre focus une fois la fenêtre active ET après un court délai, pour gagner.
+            if (curUrl.isNotEmpty()) focusCurrentPending = true
         }
         // reprend le direct au retour du plein écran
         if (curUrl.isNotEmpty()) player?.playWhenReady = true
@@ -509,28 +488,26 @@ class MainActivity : AppCompatActivity() {
 
     private var focusCurrentPending = false
 
-    /** Chaîne à re-cibler au retour : celle où était le cadre, sinon celle en lecture. */
-    private fun focusTargetUrl(): String = lastFocusedUrl.ifEmpty { curUrl }
-
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
         if (hasFocus && focusCurrentPending) {
             focusCurrentPending = false
-            if (focusTargetUrl().isNotEmpty()) rvChannels.post { focusCurrentChannel() }
+            if (curUrl.isNotEmpty()) {
+                // délai pour passer APRÈS le focus automatique du système sur la chaîne 1
+                rvChannels.postDelayed({ focusCurrentChannel() }, 250)
+            }
         }
     }
 
     private var focusAttachListener: RecyclerView.OnChildAttachStateChangeListener? = null
 
     private fun focusCurrentChannel() {
-        val target = restoreUrl.ifEmpty { focusTargetUrl() }
+        val target = curUrl
         val idx = currentFiltered().indexOfFirst { it.url == target }
         // DIAGNOSTIC temporaire (toast visible)
         Toast.makeText(
             this,
-            "retour  tgt=${if (target.isEmpty()) "VIDE" else target.takeLast(6)}" +
-                "  last=${if (lastFocusedUrl.isEmpty()) "VIDE" else lastFocusedUrl.takeLast(6)}" +
-                "  idx=$idx",
+            "retour  cur=${if (target.isEmpty()) "VIDE" else target.takeLast(6)}  idx=$idx",
             Toast.LENGTH_LONG
         ).show()
         if (idx < 0) return
@@ -577,12 +554,6 @@ class MainActivity : AppCompatActivity() {
         rvChannels.postDelayed({ tryFocusChannel(idx, attempt + 1) }, 70)
     }
 
-    override fun onPause() {
-        super.onPause()
-        // on fige la chaîne où est le cadre AVANT de partir (Films, Séries, plein écran) ;
-        // la reconstruction de la liste au retour ne doit pas écraser cette cible.
-        restoreUrl = focusTargetUrl()
-    }
 
     override fun onStop() {
         super.onStop()
