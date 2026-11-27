@@ -477,11 +477,26 @@ class MainActivity : AppCompatActivity() {
             if (ls.isNotEmpty() && li in ls.indices && ls[li].url != curUrl) {
                 play(ls[li])
             }
-            // au retour du plein écran : le cadre entoure la chaîne en cours
-            if (curUrl.isNotEmpty()) focusCurrentChannel()
+            // au retour (plein écran, Films, Séries…) : le cadre entoure la chaîne en cours
+            if (curUrl.isNotEmpty()) {
+                focusCurrentChannel()
+                // Android restaure le focus sur le bouton d'origine APRÈS onResume ;
+                // on redemande donc le focus une fois la fenêtre réellement active.
+                focusCurrentPending = true
+            }
         }
         // reprend le direct au retour du plein écran
         if (curUrl.isNotEmpty()) player?.playWhenReady = true
+    }
+
+    private var focusCurrentPending = false
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (hasFocus && focusCurrentPending) {
+            focusCurrentPending = false
+            if (curUrl.isNotEmpty()) rvChannels.post { focusCurrentChannel() }
+        }
     }
 
     private fun focusCurrentChannel() {
