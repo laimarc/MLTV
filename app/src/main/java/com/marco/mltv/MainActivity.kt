@@ -189,6 +189,19 @@ class MainActivity : AppCompatActivity() {
         )
         rvChannels.adapter = channelAdapter
 
+        // Suivi fiable de la chaîne sous le cadre : observateur global de focus.
+        // (le setOnFocusChangeListener par ligne ne se déclenche pas sur cette box)
+        rvChannels.viewTreeObserver.addOnGlobalFocusChangeListener { _, newFocus ->
+            if (newFocus != null) {
+                val vh = rvChannels.findContainingViewHolder(newFocus)
+                val pos = vh?.adapterPosition ?: RecyclerView.NO_POSITION
+                if (pos != RecyclerView.NO_POSITION) {
+                    val list = currentFiltered()
+                    if (pos in list.indices) lastFocusedUrl = list[pos].url
+                }
+            }
+        }
+
         player = PlayerFactory.create(this)
         playerView.player = player
         playerView.useController = false
