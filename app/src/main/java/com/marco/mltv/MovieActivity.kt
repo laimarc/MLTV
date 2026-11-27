@@ -84,7 +84,7 @@ class MovieActivity : AppCompatActivity() {
                 mainHandler.post {
                     all = list
                     buildCats()
-                    defaultCat()?.let { curCat = it }
+                    curCat = "Tout"
                     render()
                     rvGrid.requestFocus()
                 }
