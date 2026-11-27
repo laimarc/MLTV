@@ -479,8 +479,11 @@ class MainActivity : AppCompatActivity() {
             }
             // au retour (plein écran, Films, Séries…) : le cadre revient sur la chaîne en lecture.
             // Android pose son focus auto (chaîne 1) APRÈS onResume ; on réapplique donc
-            // notre focus une fois la fenêtre active ET après un court délai, pour gagner.
-            if (curUrl.isNotEmpty()) focusCurrentPending = true
+            // notre focus après un court délai (pour passer après lui) ET au focus fenêtre.
+            if (curUrl.isNotEmpty()) {
+                focusCurrentPending = true
+                rvChannels.postDelayed({ runPendingFocus() }, 250)
+            }
         }
         // reprend le direct au retour du plein écran
         if (curUrl.isNotEmpty()) player?.playWhenReady = true
@@ -488,14 +491,17 @@ class MainActivity : AppCompatActivity() {
 
     private var focusCurrentPending = false
 
+    /** Exécuté une seule fois par retour (le 1er des 2 déclencheurs consomme le drapeau). */
+    private fun runPendingFocus() {
+        if (!focusCurrentPending) return
+        focusCurrentPending = false
+        if (curUrl.isNotEmpty()) focusCurrentChannel()
+    }
+
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
         if (hasFocus && focusCurrentPending) {
-            focusCurrentPending = false
-            if (curUrl.isNotEmpty()) {
-                // délai pour passer APRÈS le focus automatique du système sur la chaîne 1
-                rvChannels.postDelayed({ focusCurrentChannel() }, 250)
-            }
+            rvChannels.postDelayed({ runPendingFocus() }, 250)
         }
     }
 
