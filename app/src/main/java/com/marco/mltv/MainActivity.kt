@@ -128,10 +128,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        findViewById<Button>(R.id.btn_manage).setOnClickListener {
-            startActivity(Intent(this, ManageActivity::class.java))
-        }
-
         findViewById<EditText>(R.id.et_search).addTextChangedListener { e ->
             search = e?.toString() ?: ""
             render()
@@ -172,25 +168,7 @@ class MainActivity : AppCompatActivity() {
                     play(c)
                 }
             },
-            onLongClick = { c ->
-                val oldIdx = currentFiltered().indexOfFirst { it.url == c.url }
-                Store.toggleFavorite(this, c.url)
-                channelAdapter.update(currentFiltered())
-                Toast.makeText(
-                    this,
-                    if (Store.isFavorite(this, c.url)) "Ajouté aux favoris" else "Retiré des favoris",
-                    Toast.LENGTH_SHORT
-                ).show()
-                // garder le cadre sur la chaîne choisie (et non en haut de liste)
-                val list = currentFiltered()
-                if (list.isNotEmpty()) {
-                    val here = list.indexOfFirst { it.url == c.url }
-                    val target = if (here >= 0) here else oldIdx.coerceIn(0, list.lastIndex)
-                    (rvChannels.layoutManager as LinearLayoutManager)
-                        .scrollToPositionWithOffset(target, rvChannels.height / 3)
-                    tryFocusChannel(target, 0)
-                }
-            },
+            onLongClick = { c -> showChannelMenu(c) },
             // aperçu automatique : la chaîne survolée se lance après une courte pause
             onFocus = { c -> schedulePreview(c) }
         )
@@ -339,6 +317,79 @@ class MainActivity : AppCompatActivity() {
             .show()
     }
 
+    // ---- Menu et déplacement d'une CHAÎNE (appui long dans la liste) ----
+    private var movingChUrl: String? = null
+
+    private fun showChannelMenu(c: Channel) {
+        val isFav = Store.isFavorite(this, c.url)
+        val items = arrayOf(
+            if (isFav) "Retirer des favoris" else "Ajouter aux favoris",
+            "Déplacer (haut/bas)",
+            "Masquer"
+        )
+        AlertDialog.Builder(this)
+            .setTitle(c.name)
+            .setItems(items) { _, which ->
+                when (which) {
+                    0 -> {
+                        Store.toggleFavorite(this, c.url)
+                        renderList()
+                        refocusChannel(c.url)
+                        Toast.makeText(
+                            this,
+                            if (Store.isFavorite(this, c.url)) "Ajouté aux favoris" else "Retiré des favoris",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                    1 -> startMoveChannel(c.url)
+                    2 -> {
+                        Store.toggleHiddenChannel(this, c.url)
+                        renderList()
+                        Toast.makeText(this, "Chaîne masquée (restauration dans ⚙ Réglages)", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+            .show()
+    }
+
+    private fun refocusChannel(url: String) {
+        val list = currentFiltered()
+        val idx = list.indexOfFirst { it.url == url }
+        if (idx >= 0) {
+            (rvChannels.layoutManager as LinearLayoutManager)
+                .scrollToPositionWithOffset(idx, rvChannels.height / 3)
+            tryFocusChannel(idx, 0)
+        }
+    }
+
+    private fun startMoveChannel(url: String) {
+        movingChUrl = url
+        Toast.makeText(this, "Haut/Bas pour déplacer, OK pour valider", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun endMoveChannel() {
+        movingChUrl = null
+    }
+
+    private fun moveChannelStep(up: Boolean) {
+        val url = movingChUrl ?: return
+        val filtered = currentFiltered()
+        val from = filtered.indexOfFirst { it.url == url }
+        if (from < 0) return
+        val to = if (up) from - 1 else from + 1
+        if (to < 0 || to > filtered.lastIndex) return
+        val neighborUrl = filtered[to].url
+        // on réordonne l'ordre GLOBAL de toutes les chaînes
+        val global = applyOrder(allChannels).map { it.url }.toMutableList()
+        global.remove(url)
+        val insertAt = global.indexOf(neighborUrl)
+        if (insertAt < 0) return
+        global.add(if (up) insertAt else insertAt + 1, url)
+        Store.setChannelOrder(this, global)
+        renderList()
+        refocusChannel(url)
+    }
+
     private fun startMove(g: String) {
         if (g == "Tout" || g == "★ Favoris") return
         movingCat = g
@@ -406,6 +457,14 @@ class MainActivity : AppCompatActivity() {
                     KeyEvent.KEYCODE_DPAD_UP -> moveStep(true)
                     KeyEvent.KEYCODE_DPAD_DOWN -> moveStep(false)
                     else -> endMove()
+                }
+                return true
+            }
+            if (movingChUrl != null) {
+                when (kc) {
+                    KeyEvent.KEYCODE_DPAD_UP -> moveChannelStep(true)
+                    KeyEvent.KEYCODE_DPAD_DOWN -> moveChannelStep(false)
+                    else -> endMoveChannel()
                 }
                 return true
             }

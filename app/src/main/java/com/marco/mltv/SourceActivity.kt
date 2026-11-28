@@ -61,6 +61,10 @@ class SourceActivity : AppCompatActivity() {
             }
         }
 
+        findViewById<Button>(R.id.btn_manage_channels).setOnClickListener {
+            startActivity(Intent(this, ManageActivity::class.java))
+        }
+
         // ---- Fluidité (mémoire tampon) ----
         val bEq = findViewById<Button>(R.id.btn_buf_equilibre)
         val bCo = findViewById<Button>(R.id.btn_buf_confort)
