@@ -72,6 +72,16 @@ class MainActivity : AppCompatActivity() {
     private var movingCat: String? = null
 
     private val mainHandler = Handler(Looper.getMainLooper())
+    private var pendingPreview: Runnable? = null
+
+    /** Aperçu auto : lance la chaîne survolée après une courte pause (anti-rafale au scroll). */
+    private fun schedulePreview(c: Channel) {
+        pendingPreview?.let { mainHandler.removeCallbacks(it) }
+        if (c.url == curUrl) return
+        val r = Runnable { if (c.url != curUrl) play(c) }
+        pendingPreview = r
+        mainHandler.postDelayed(r, 420)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -180,7 +190,9 @@ class MainActivity : AppCompatActivity() {
                         .scrollToPositionWithOffset(target, rvChannels.height / 3)
                     tryFocusChannel(target, 0)
                 }
-            }
+            },
+            // aperçu automatique : la chaîne survolée se lance après une courte pause
+            onFocus = { c -> schedulePreview(c) }
         )
         rvChannels.adapter = channelAdapter
 
