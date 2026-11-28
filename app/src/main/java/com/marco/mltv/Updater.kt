@@ -15,29 +15,55 @@ object Updater {
     // unique par build (tag v1.N) donc jamais d'ancienne version servie par le cache.
     private const val API_LATEST = "https://api.github.com/repos/laimarc/MLTV/releases/latest"
 
+    /** Vérif au démarrage : réessaie quelques fois (la release vient parfois d'être publiée). */
     fun checkAsync(activity: Activity) {
+        checkInternal(activity, attempts = 3, manual = false)
+    }
+
+    /** Vérif manuelle (bouton Réglages) : avec retour visible à l'utilisateur. */
+    fun checkManual(activity: Activity) {
+        Toast.makeText(activity, "Recherche de mise à jour…", Toast.LENGTH_SHORT).show()
+        checkInternal(activity, attempts = 2, manual = true)
+    }
+
+    private fun checkInternal(activity: Activity, attempts: Int, manual: Boolean) {
         Thread {
-            try {
-                val json = JSONObject(Http.get("$API_LATEST?t=${System.currentTimeMillis()}", noCache = true))
-                // tag_name attendu : "v1.<versionCode>"
-                val tag = json.optString("tag_name", "")
-                val remote = Regex("(\\d+)\\s*$").find(tag)?.groupValues?.get(1)?.toIntOrNull() ?: 0
-                // retrouver l'APK dans les assets de la release
-                var url = ""
-                val assets = json.optJSONArray("assets")
-                if (assets != null) {
-                    for (i in 0 until assets.length()) {
-                        val a = assets.getJSONObject(i)
-                        if (a.optString("name").endsWith(".apk")) {
-                            url = a.optString("browser_download_url"); break
+            var found = false
+            var netError = false
+            for (i in 0 until attempts) {
+                if (i > 0) try { Thread.sleep(6000) } catch (_: InterruptedException) {}
+                try {
+                    val json = JSONObject(Http.get("$API_LATEST?t=${System.currentTimeMillis()}", noCache = true))
+                    val tag = json.optString("tag_name", "") // "v1.<versionCode>"
+                    val remote = Regex("(\\d+)\\s*$").find(tag)?.groupValues?.get(1)?.toIntOrNull() ?: 0
+                    var url = ""
+                    val assets = json.optJSONArray("assets")
+                    if (assets != null) {
+                        for (j in 0 until assets.length()) {
+                            val a = assets.getJSONObject(j)
+                            if (a.optString("name").endsWith(".apk")) {
+                                url = a.optString("browser_download_url"); break
+                            }
                         }
                     }
+                    netError = false
+                    if (remote > BuildConfig.VERSION_CODE && url.isNotEmpty()) {
+                        found = true
+                        activity.runOnUiThread { prompt(activity, url) }
+                        break
+                    }
+                } catch (_: Exception) {
+                    netError = true
                 }
-                if (remote > BuildConfig.VERSION_CODE && url.isNotEmpty()) {
-                    activity.runOnUiThread { prompt(activity, url) }
+            }
+            if (!found && manual) {
+                activity.runOnUiThread {
+                    Toast.makeText(
+                        activity,
+                        if (netError) "Vérification impossible (réseau)." else "MLTV est à jour.",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
-            } catch (_: Exception) {
-                // pas de réseau / pas de release : on ignore
             }
         }.start()
     }

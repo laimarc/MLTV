@@ -65,6 +65,10 @@ class SourceActivity : AppCompatActivity() {
             startActivity(Intent(this, ManageActivity::class.java))
         }
 
+        findViewById<Button>(R.id.btn_check_update).setOnClickListener {
+            Updater.checkManual(this)
+        }
+
         // ---- Fluidité (mémoire tampon) ----
         val bEq = findViewById<Button>(R.id.btn_buf_equilibre)
         val bCo = findViewById<Button>(R.id.btn_buf_confort)

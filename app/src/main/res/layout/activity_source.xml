@@ -291,6 +291,17 @@
                     android:textAllCaps="false"
                     android:textSize="14sp" />
 
+                <Button
+                    android:id="@+id/btn_check_update"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:background="@drawable/btn_secondary"
+                    android:text="Vérifier les mises à jour"
+                    android:textColor="@color/txt"
+                    android:textAllCaps="false"
+                    android:textSize="14sp" />
+
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
