@@ -27,31 +27,6 @@
             android:ellipsize="end" />
 
         <Button
-            android:id="@+id/btn_watch"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="10dp"
-            android:background="@drawable/btn_secondary"
-            android:text="＋  À regarder"
-            android:textColor="@color/txt"
-            android:textAllCaps="false"
-            android:textSize="14sp"
-            android:paddingHorizontal="16dp" />
-
-        <Button
-            android:id="@+id/btn_trailer"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="10dp"
-            android:background="@drawable/btn_secondary"
-            android:text="🎬  Bande-annonce"
-            android:textColor="@color/txt"
-            android:textAllCaps="false"
-            android:textSize="14sp"
-            android:paddingHorizontal="16dp"
-            android:visibility="gone" />
-
-        <Button
             android:id="@+id/btn_back"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -85,6 +60,41 @@
         android:lineSpacingMultiplier="1.25"
         android:maxLines="3"
         android:ellipsize="end" />
+
+    <!-- Rangée d'actions bien visible (hors bord droit rogné par certaines TV) -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingHorizontal="20dp"
+        android:paddingTop="12dp">
+
+        <Button
+            android:id="@+id/btn_watch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="12dp"
+            android:background="@drawable/btn_secondary"
+            android:text="＋  À regarder"
+            android:textColor="@color/txt"
+            android:textAllCaps="false"
+            android:textSize="16sp"
+            android:paddingHorizontal="22dp"
+            android:paddingVertical="10dp" />
+
+        <Button
+            android:id="@+id/btn_trailer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/btn_secondary"
+            android:text="🎬  Bande-annonce"
+            android:textColor="@color/txt"
+            android:textAllCaps="false"
+            android:textSize="16sp"
+            android:paddingHorizontal="22dp"
+            android:paddingVertical="10dp"
+            android:visibility="gone" />
+    </LinearLayout>
 
     <TextView
         android:layout_width="wrap_content"
