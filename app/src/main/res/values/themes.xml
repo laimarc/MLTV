@@ -7,4 +7,26 @@
         <item name="accentColor">#FFFF7A18</item>
         <item name="accentText">#FF1A1200</item>
     </style>
+
+    <!-- Pop-ups modernes, aux couleurs du thème courant -->
+    <style name="MLTVDialog" parent="Theme.AppCompat.Dialog.Alert">
+        <item name="android:windowBackground">@drawable/dialog_bg</item>
+        <item name="colorAccent">?attr/accentColor</item>
+        <item name="android:textColorPrimary">@color/txt</item>
+        <item name="android:textColorSecondary">@color/muted</item>
+        <item name="android:textColor">@color/txt</item>
+        <item name="android:windowTitleStyle">@style/MLTVDialogTitle</item>
+        <item name="buttonBarButtonStyle">@style/MLTVDialogButton</item>
+    </style>
+
+    <style name="MLTVDialogTitle" parent="@style/TextAppearance.AppCompat.Title">
+        <item name="android:textColor">?attr/accentColor</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="MLTVDialogButton" parent="Widget.AppCompat.Button.Borderless.Colored">
+        <item name="android:textColor">?attr/accentColor</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textStyle">bold</item>
+    </style>
 </resources>

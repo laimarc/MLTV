@@ -102,7 +102,7 @@ class ManageActivity : AppCompatActivity() {
         if (idx < 0 || idx > viewRows.lastIndex) return
         val row = viewRows[idx]
         val items = arrayOf("Déplacer (haut/bas)", if (row.hidden) "Afficher" else "Masquer")
-        AlertDialog.Builder(this)
+        AlertDialog.Builder(this, R.style.MLTVDialog)
             .setTitle(row.label)
             .setItems(items) { _, which ->
                 when (which) {

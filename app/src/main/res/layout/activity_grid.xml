@@ -60,6 +60,18 @@
                 android:textStyle="bold" />
 
             <Button
+                android:id="@+id/btn_watchlist"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp"
+                android:background="@drawable/btn_secondary"
+                android:text="★ À regarder"
+                android:textColor="@color/txt"
+                android:textAllCaps="false"
+                android:textSize="14sp"
+                android:paddingHorizontal="16dp" />
+
+            <Button
                 android:id="@+id/btn_cats"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

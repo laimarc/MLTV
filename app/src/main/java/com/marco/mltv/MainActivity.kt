@@ -301,7 +301,7 @@ class MainActivity : AppCompatActivity() {
         if (g == "Tout" || g == "★ Favoris") return
         val hidden = Store.isGroupHidden(this, g)
         val items = arrayOf("Déplacer (haut/bas)", if (hidden) "Afficher" else "Masquer")
-        AlertDialog.Builder(this)
+        AlertDialog.Builder(this, R.style.MLTVDialog)
             .setTitle(g)
             .setItems(items) { _, which ->
                 when (which) {
@@ -327,7 +327,7 @@ class MainActivity : AppCompatActivity() {
             "Déplacer (haut/bas)",
             "Masquer"
         )
-        AlertDialog.Builder(this)
+        AlertDialog.Builder(this, R.style.MLTVDialog)
             .setTitle(c.name)
             .setItems(items) { _, which ->
                 when (which) {

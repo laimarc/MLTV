@@ -138,7 +138,7 @@ class PlayerActivity : AppCompatActivity() {
         val m = (posMs / 60000).toInt()
         val s = ((posMs / 1000) % 60).toInt()
         val t = String.format("%d:%02d", m, s)
-        AlertDialog.Builder(this)
+        AlertDialog.Builder(this, R.style.MLTVDialog)
             .setTitle("Reprendre la lecture ?")
             .setMessage("Tu t'étais arrêté à $t.")
             .setPositiveButton("Reprendre à $t") { _, _ ->

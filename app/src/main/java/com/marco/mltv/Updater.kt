@@ -44,7 +44,7 @@ object Updater {
 
     private fun prompt(activity: Activity, url: String) {
         if (activity.isFinishing) return
-        AlertDialog.Builder(activity)
+        AlertDialog.Builder(activity, R.style.MLTVDialog)
             .setTitle("Mise à jour disponible")
             .setMessage("Une nouvelle version de MLTV est disponible. L'installer maintenant ?")
             .setPositiveButton("Installer") { _, _ -> downloadAndInstall(activity, url) }

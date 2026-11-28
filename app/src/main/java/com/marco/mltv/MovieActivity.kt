@@ -43,6 +43,9 @@ class MovieActivity : AppCompatActivity() {
         drawer = findViewById(R.id.drawer)
         findViewById<Button>(R.id.btn_back).setOnClickListener { finish() }
         findViewById<Button>(R.id.btn_cats).setOnClickListener { openDrawer() }
+        findViewById<Button>(R.id.btn_watchlist).setOnClickListener {
+            curCat = WATCH; catAdapter.setCurrent(WATCH); renderGrid()
+        }
 
         rvGrid = findViewById(R.id.rv_grid)
         rvGrid.layoutManager = GridLayoutManager(this, spanCount())
@@ -128,7 +131,7 @@ class MovieActivity : AppCompatActivity() {
         if (c in fixedCats) return
         val hidden = Store.isVodCatHidden(this, c)
         val items = arrayOf("Déplacer (haut/bas)", if (hidden) "Afficher" else "Masquer")
-        AlertDialog.Builder(this)
+        AlertDialog.Builder(this, R.style.MLTVDialog)
             .setTitle(c)
             .setItems(items) { _, which ->
                 when (which) {
