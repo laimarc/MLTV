@@ -45,13 +45,14 @@ jobs:
       - name: Préparer le fichier APK
         run: cp app/build/outputs/apk/debug/app-debug.apk MLTV.apk
 
-      - name: Publier la release (lien fixe, sans coupure)
+      - name: Publier la release versionnée (mise à jour intégrée, lien unique par build)
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release view latest >/dev/null 2>&1 || \
-            gh release create latest --title "MLTV — dernière version" --notes "APK du dernier build (lien stable)."
-          gh release upload latest MLTV.apk --clobber
+          gh release create "v1.${{ github.run_number }}" MLTV.apk \
+            --title "MLTV v1.${{ github.run_number }}" \
+            --notes "Build ${{ github.run_number }}" \
+            --latest
 
       - name: Préparer le site (fichier direct + version)
         run: |

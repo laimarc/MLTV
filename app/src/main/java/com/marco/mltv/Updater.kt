@@ -11,23 +11,33 @@ import java.io.File
 /** Mise à jour intégrée : compare la version en ligne et propose l'installation. */
 object Updater {
 
-    private const val VERSION_URL = "https://laimarc.github.io/MLTV/version.json"
+    // API GitHub Releases : non mise en cache comme GitHub Pages, et l'APK a un lien
+    // unique par build (tag v1.N) donc jamais d'ancienne version servie par le cache.
+    private const val API_LATEST = "https://api.github.com/repos/laimarc/MLTV/releases/latest"
 
     fun checkAsync(activity: Activity) {
         Thread {
             try {
-                // paramètre anti-cache : force le CDN GitHub Pages à renvoyer la dernière version
-                val json = JSONObject(Http.get("$VERSION_URL?t=${System.currentTimeMillis()}", noCache = true))
-                val remote = json.optInt("versionCode", 0)
-                var url = json.optString("url", "")
+                val json = JSONObject(Http.get("$API_LATEST?t=${System.currentTimeMillis()}", noCache = true))
+                // tag_name attendu : "v1.<versionCode>"
+                val tag = json.optString("tag_name", "")
+                val remote = Regex("(\\d+)\\s*$").find(tag)?.groupValues?.get(1)?.toIntOrNull() ?: 0
+                // retrouver l'APK dans les assets de la release
+                var url = ""
+                val assets = json.optJSONArray("assets")
+                if (assets != null) {
+                    for (i in 0 until assets.length()) {
+                        val a = assets.getJSONObject(i)
+                        if (a.optString("name").endsWith(".apk")) {
+                            url = a.optString("browser_download_url"); break
+                        }
+                    }
+                }
                 if (remote > BuildConfig.VERSION_CODE && url.isNotEmpty()) {
-                    // anti-cache aussi sur l'APK pour ne pas récupérer l'ancienne
-                    url += if (url.contains("?")) "&t=${System.currentTimeMillis()}" else "?t=${System.currentTimeMillis()}"
-                    val finalUrl = url
-                    activity.runOnUiThread { prompt(activity, finalUrl) }
+                    activity.runOnUiThread { prompt(activity, url) }
                 }
             } catch (_: Exception) {
-                // pas de réseau / pas de version : on ignore
+                // pas de réseau / pas de release : on ignore
             }
         }.start()
     }
