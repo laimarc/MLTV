@@ -76,7 +76,14 @@ object XtreamClient {
         val root = JSONObject(Http.get("$a&action=get_vod_info&vod_id=$streamId"))
         val info = root.optJSONObject("info") ?: JSONObject()
         val plot = info.optString("plot", info.optString("description", ""))
-        return VodInfo(plot, metaLine(info))
+        return VodInfo(plot, metaLine(info), trailerUrl(info))
+    }
+
+    /** Construit une URL YouTube à partir du champ youtube_trailer (id ou URL). */
+    private fun trailerUrl(info: JSONObject): String {
+        val t = info.optString("youtube_trailer", "").trim()
+        if (t.isEmpty()) return ""
+        return if (t.startsWith("http")) t else "https://www.youtube.com/watch?v=$t"
     }
 
     // ---------- SÉRIES ----------
@@ -105,8 +112,9 @@ object XtreamClient {
         val info = root.optJSONObject("info") ?: JSONObject()
         val plot = info.optString("plot", info.optString("description", ""))
         val meta = metaLine(info)
+        val trailer = trailerUrl(info)
         val episodesObj = root.optJSONObject("episodes")
-            ?: return SeriesInfo(plot, meta, emptyList())
+            ?: return SeriesInfo(plot, meta, emptyList(), trailer)
 
         val seasons = ArrayList<Season>()
         val keys = episodesObj.keys().asSequence().toList()
@@ -125,7 +133,7 @@ object XtreamClient {
             }
             if (eps.isNotEmpty()) seasons.add(Season("Saison $key", eps))
         }
-        return SeriesInfo(plot, meta, seasons)
+        return SeriesInfo(plot, meta, seasons, trailer)
     }
 
     /** Construit une ligne « Genre · Année · Durée » à partir d'un bloc info. */

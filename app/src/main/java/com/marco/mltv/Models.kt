@@ -32,12 +32,14 @@ data class Season(
 /** Fiche d'un film (synopsis + infos). */
 data class VodInfo(
     val plot: String,
-    val meta: String
+    val meta: String,
+    val trailer: String = ""
 )
 
 /** Fiche d'une série (synopsis + infos + saisons). */
 data class SeriesInfo(
     val plot: String,
     val meta: String,
-    val seasons: List<Season>
+    val seasons: List<Season>,
+    val trailer: String = ""
 )

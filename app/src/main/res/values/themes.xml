@@ -17,6 +17,9 @@
         <item name="android:textColor">@color/txt</item>
         <item name="android:windowTitleStyle">@style/MLTVDialogTitle</item>
         <item name="buttonBarButtonStyle">@style/MLTVDialogButton</item>
+        <!-- pop-ups plus étroites -->
+        <item name="android:windowMinWidthMajor">42%</item>
+        <item name="android:windowMinWidthMinor">55%</item>
     </style>
 
     <style name="MLTVDialogTitle" parent="@style/TextAppearance.AppCompat.Title">

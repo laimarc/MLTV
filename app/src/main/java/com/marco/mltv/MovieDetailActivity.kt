@@ -1,6 +1,7 @@
 package com.marco.mltv
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -60,6 +61,8 @@ class MovieDetailActivity : AppCompatActivity() {
         }
         btnPlay.requestFocus()
 
+        val btnTrailer = findViewById<Button>(R.id.btn_trailer)
+
         if (streamId >= 0) {
             Thread {
                 try {
@@ -69,6 +72,10 @@ class MovieDetailActivity : AppCompatActivity() {
                     mainHandler.post {
                         plot.text = if (info.plot.isBlank()) "Pas de résumé disponible." else info.plot
                         meta.text = info.meta
+                        if (info.trailer.isNotEmpty()) {
+                            btnTrailer.visibility = View.VISIBLE
+                            btnTrailer.setOnClickListener { openTrailer(info.trailer) }
+                        }
                     }
                 } catch (e: Exception) {
                     mainHandler.post { plot.text = "Résumé indisponible." }
@@ -76,6 +83,14 @@ class MovieDetailActivity : AppCompatActivity() {
             }.start()
         } else {
             plot.text = ""
+        }
+    }
+
+    private fun openTrailer(urlStr: String) {
+        try {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(urlStr)))
+        } catch (e: Exception) {
+            android.widget.Toast.makeText(this, "Impossible d'ouvrir la bande-annonce", android.widget.Toast.LENGTH_SHORT).show()
         }
     }
 

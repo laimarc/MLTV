@@ -1,6 +1,7 @@
 package com.marco.mltv
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -79,6 +80,11 @@ class SeriesDetailActivity : AppCompatActivity() {
                 mainHandler.post {
                     tvMeta.text = info.meta
                     tvPlot.text = info.plot
+                    if (info.trailer.isNotEmpty()) {
+                        val bt = findViewById<Button>(R.id.btn_trailer)
+                        bt.visibility = View.VISIBLE
+                        bt.setOnClickListener { openTrailer(info.trailer) }
+                    }
                     seasons = info.seasons
                     if (seasons.isEmpty()) {
                         status.text = "Aucun épisode disponible"
@@ -93,6 +99,14 @@ class SeriesDetailActivity : AppCompatActivity() {
                 mainHandler.post { status.text = "Erreur : ${e.message}" }
             }
         }.start()
+    }
+
+    private fun openTrailer(urlStr: String) {
+        try {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(urlStr)))
+        } catch (e: Exception) {
+            android.widget.Toast.makeText(this, "Impossible d'ouvrir la bande-annonce", android.widget.Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun renderEpisodes() {
