@@ -96,10 +96,18 @@ object Updater {
     }
 
     private fun install(activity: Activity, file: File) {
-        val uri = FileProvider.getUriForFile(activity, "${activity.packageName}.fileprovider", file)
-        val intent = Intent(Intent.ACTION_VIEW)
-            .setDataAndType(uri, "application/vnd.android.package-archive")
-            .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
-        activity.startActivity(intent)
+        if (!file.exists() || file.length() < 500_000L) {
+            Toast.makeText(activity, "Fichier de mise à jour invalide. Réessaie.", Toast.LENGTH_LONG).show()
+            return
+        }
+        try {
+            val uri = FileProvider.getUriForFile(activity, "${activity.packageName}.fileprovider", file)
+            val intent = Intent(Intent.ACTION_VIEW)
+                .setDataAndType(uri, "application/vnd.android.package-archive")
+                .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
+            activity.startActivity(intent)
+        } catch (e: Exception) {
+            Toast.makeText(activity, "Impossible de lancer l'installation : ${e.message}", Toast.LENGTH_LONG).show()
+        }
     }
 }
