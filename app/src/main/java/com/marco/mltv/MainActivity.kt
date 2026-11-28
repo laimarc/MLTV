@@ -388,6 +388,16 @@ class MainActivity : AppCompatActivity() {
         rvChannels.requestFocus()
     }
 
+    /** Vrai si [v] est [parent] ou l'un de ses descendants. */
+    private fun isDescendant(v: View?, parent: View): Boolean {
+        var p: View? = v
+        while (p != null) {
+            if (p === parent) return true
+            p = p.parent as? View
+        }
+        return false
+    }
+
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
         if (event.action == KeyEvent.ACTION_DOWN) {
             val kc = event.keyCode
@@ -400,9 +410,17 @@ class MainActivity : AppCompatActivity() {
                 return true
             }
             if (drawer.visibility == View.VISIBLE) {
-                if (kc == KeyEvent.KEYCODE_DPAD_RIGHT || kc == KeyEvent.KEYCODE_BACK) {
+                if (kc == KeyEvent.KEYCODE_BACK) {
                     closeDrawer()
                     return true
+                }
+                if (kc == KeyEvent.KEYCODE_DPAD_RIGHT) {
+                    // sur les bouquets (rien à droite dans le tiroir) → fermer ;
+                    // sur le bandeau d'actions → laisser le focus rejoindre les bouquets
+                    if (isDescendant(currentFocus, rvCatDrawer)) {
+                        closeDrawer()
+                        return true
+                    }
                 }
             } else if (kc == KeyEvent.KEYCODE_DPAD_LEFT) {
                 val cur = currentFocus

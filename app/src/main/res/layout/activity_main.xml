@@ -6,32 +6,100 @@
     android:orientation="horizontal"
     android:background="@color/bg">
 
-    <!-- Bandeau catégories (ouvre à gauche) -->
+    <!-- Tiroir gauche (ouvre à gauche) : bandeau d'actions + bouquets -->
     <LinearLayout
         android:id="@+id/drawer"
-        android:layout_width="210dp"
+        android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:orientation="vertical"
+        android:orientation="horizontal"
         android:background="@color/panel2"
         android:visibility="gone">
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="16dp"
-            android:text="Catégories"
-            android:textColor="?attr/accentColor"
-            android:textSize="16sp"
-            android:textStyle="bold" />
+        <!-- Bandeau d'actions (tout à gauche) : Films, Séries, Gérer, Réglages -->
+        <LinearLayout
+            android:layout_width="150dp"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:background="@color/panel"
+            android:padding="12dp">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_catdrawer"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:paddingHorizontal="10dp"
-            android:clipToPadding="false"
-            android:scrollbars="vertical" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="10dp"
+                android:text="Menu"
+                android:textColor="?attr/accentColor"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/btn_films"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:background="@drawable/btn_secondary"
+                android:text="Films"
+                android:textColor="@color/txt"
+                android:textAllCaps="false"
+                android:textSize="14sp" />
+
+            <Button
+                android:id="@+id/btn_series"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:background="@drawable/btn_secondary"
+                android:text="Séries"
+                android:textColor="@color/txt"
+                android:textAllCaps="false"
+                android:textSize="14sp" />
+
+            <Button
+                android:id="@+id/btn_manage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:background="@drawable/btn_secondary"
+                android:text="Gérer"
+                android:textColor="@color/txt"
+                android:textAllCaps="false"
+                android:textSize="14sp" />
+
+            <Button
+                android:id="@+id/btn_sources"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/btn_secondary"
+                android:text="⚙ Réglages"
+                android:textColor="@color/txt"
+                android:textAllCaps="false"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+        <!-- Bouquets -->
+        <LinearLayout
+            android:layout_width="210dp"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="16dp"
+                android:text="Catégories"
+                android:textColor="?attr/accentColor"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_catdrawer"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:paddingHorizontal="10dp"
+                android:clipToPadding="false"
+                android:scrollbars="vertical" />
+        </LinearLayout>
     </LinearLayout>
 
     <!-- Colonne 1 : chaînes -->
@@ -63,69 +131,13 @@
                 android:id="@+id/btn_cats"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="5dp"
                 android:background="@drawable/btn_secondary"
-                android:text="☰"
-                android:textColor="@color/txt"
-                android:textSize="14sp"
-                android:minWidth="0dp"
-                android:paddingHorizontal="9dp" />
-
-            <Button
-                android:id="@+id/btn_manage"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="5dp"
-                android:background="@drawable/btn_secondary"
-                android:text="Gérer"
+                android:text="☰ Menu"
                 android:textColor="@color/txt"
                 android:textAllCaps="false"
-                android:textSize="12sp"
+                android:textSize="13sp"
                 android:minWidth="0dp"
-                android:paddingHorizontal="9dp" />
-
-            <Button
-                android:id="@+id/btn_sources"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/btn_secondary"
-                android:text="⚙"
-                android:textColor="@color/txt"
-                android:textSize="15sp"
-                android:minWidth="0dp"
-                android:paddingHorizontal="9dp" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:paddingHorizontal="12dp"
-            android:paddingBottom="8dp">
-
-            <Button
-                android:id="@+id/btn_films"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginEnd="5dp"
-                android:background="@drawable/btn_secondary"
-                android:text="Films"
-                android:textColor="@color/txt"
-                android:textAllCaps="false"
-                android:textSize="14sp" />
-
-            <Button
-                android:id="@+id/btn_series"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginStart="5dp"
-                android:background="@drawable/btn_secondary"
-                android:text="Séries"
-                android:textColor="@color/txt"
-                android:textAllCaps="false"
-                android:textSize="14sp" />
+                android:paddingHorizontal="10dp" />
         </LinearLayout>
 
         <EditText
